@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+:root,[data-theme="light"]{--bg:#ffffff;--fg:#0a0a0a;--fg2:#404040;--muted:#737373;--faint:#a3a3a3;--border:#e5e5e5;--border2:#d4d4d4;--surface:#f5f5f5;--surface2:#fafafa;--accent:#1d4ed8;--accent-bg:#eef3ff;--accent-bd:#c9d8fb;--btn:#0a0a0a;--btn-fg:#ffffff;--btn-hover:#262626;--ok:#15803d;--ok-bg:#effaf2;--warn:#a16207;--warn-bg:#fdf8e8;--err:#b91c1c;--err-bg:#fdf1f1;--hl:#fdf3c4;--overlay:rgba(10,10,10,.24);--shadow:0 1px 2px rgba(0,0,0,.04),0 12px 32px -4px rgba(0,0,0,.12);color-scheme:light}
+[data-theme="dark"]{--bg:#0a0a0a;--fg:#fafafa;--fg2:#d4d4d4;--muted:#a3a3a3;--faint:#737373;--border:#262626;--border2:#3a3a3a;--surface:#171717;--surface2:#111111;--accent:#7ea4ff;--accent-bg:#131d33;--accent-bd:#24365f;--btn:#fafafa;--btn-fg:#0a0a0a;--btn-hover:#e5e5e5;--ok:#5fc987;--ok-bg:#0f2117;--warn:#e0b04a;--warn-bg:#241c0b;--err:#f08080;--err-bg:#2a1111;--hl:#3b3413;--overlay:rgba(0,0,0,.6);--shadow:0 1px 2px rgba(0,0,0,.5),0 16px 40px -4px rgba(0,0,0,.7);color-scheme:dark}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,"SF Pro Text","Inter","Segoe UI",sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+*,*::before,*::after{box-sizing:border-box}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+@keyframes dmspin{to{transform:rotate(360deg)}}
+@keyframes dmpulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes dmin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+<script src="icons.js"></script>
+</helmet>
+<div data-screen-label="06 Evals" style="min-height:100vh;background:var(--bg);color:var(--fg)">
+  <header style="height:56px;display:flex;align-items:center;gap:12px;padding:0 clamp(16px,3vw,24px);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10">
+    <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ onMenu }}" aria-label="Open menu" style="width:32px;height:32px;margin-left:-6px;display:inline-grid;place-items:center;border-radius:999px;border:0;background:transparent;color:var(--fg);cursor:pointer" style-hover="background:var(--surface)"><lucide-icon name="menu"></lucide-icon></button>
+    </sc-if>
+    <nav aria-label="Breadcrumb" style="flex:1;min-width:0;font-size:14px;font-weight:500">Evals</nav>
+    <button onClick="{{ openDialog }}" style="height:34px;padding:0 14px 0 12px;border-radius:999px;border:0;background:var(--btn);color:var(--btn-fg);font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px" style-hover="background:var(--btn-hover)"><lucide-icon name="plus"></lucide-icon>New eval set</button>
+  </header>
+  <div style="max-width:1120px;margin:0 auto;padding:32px clamp(16px,4vw,32px) 64px">
+    <h1 style="font-size:24px;font-weight:600;letter-spacing:-0.025em;margin:0">Evals</h1>
+    <p style="margin:4px 0 24px;color:var(--muted);max-width:560px">Test questions with known answers. Run them after changing documents or retrieval settings to catch regressions.</p>
+
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+      <div style="border:1px dashed var(--border2);border-radius:12px;padding:72px 24px;display:flex;flex-direction:column;align-items:center;text-align:center">
+        <div style="width:44px;height:44px;border-radius:999px;border:1px solid var(--border);display:grid;place-items:center;color:var(--muted)"><lucide-icon name="flask-conical" size="20"></lucide-icon></div>
+        <h2 style="font-size:16px;font-weight:600;margin:16px 0 0">No eval sets yet</h2>
+        <p style="margin:6px 0 20px;color:var(--muted);max-width:360px">Create an eval set to measure answer quality for a collection.</p>
+        <button onClick="{{ openDialog }}" style="height:38px;padding:0 16px 0 14px;border-radius:999px;border:0;background:var(--btn);color:var(--btn-fg);font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px" style-hover="background:var(--btn-hover)"><lucide-icon name="plus"></lucide-icon>New eval set</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showTable }}" hint-placeholder-val="{{ true }}">
+      <div style="border:1px solid var(--border);border-radius:12px;overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:760px">
+          <thead>
+            <tr>
+              <th style="text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);min-width:260px">Name</th>
+              <th style="text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border)">Collection</th>
+              <th style="text-align:right;font-size:12px;font-weight:500;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);width:100px">Questions</th>
+              <th style="text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);width:170px">Last run score</th>
+              <th style="text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);width:130px">Last run</th>
+              <th style="width:44px;border-bottom:1px solid var(--border)"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ skel }}" as="s" hint-placeholder-count="5">
+                <tr style="animation:dmpulse 1.4s ease-in-out infinite">
+                  <td style="padding:16px;border-bottom:1px solid var(--border)"><div style="height:12px;border-radius:6px;background:var(--surface);width:{{ s.w }}"></div></td>
+                  <td style="padding:16px;border-bottom:1px solid var(--border)"><div style="height:12px;width:140px;border-radius:6px;background:var(--surface)"></div></td>
+                  <td style="padding:16px;border-bottom:1px solid var(--border)"><div style="height:12px;width:28px;border-radius:6px;background:var(--surface);margin-left:auto"></div></td>
+                  <td style="padding:16px;border-bottom:1px solid var(--border)"><div style="height:12px;width:90px;border-radius:6px;background:var(--surface)"></div></td>
+                  <td style="padding:16px;border-bottom:1px solid var(--border)"><div style="height:12px;width:70px;border-radius:6px;background:var(--surface)"></div></td>
+                  <td style="border-bottom:1px solid var(--border)"></td>
+                </tr>
+              </sc-for>
+            </sc-if>
+            <sc-for list="{{ rows }}" as="e" hint-placeholder-count="5">
+              <tr onClick="{{ e.open }}" style="cursor:pointer;animation:dmin .2s ease-out" style-hover="background:var(--surface2)">
+                <td style="padding:14px 16px;border-bottom:1px solid {{ e.bb }}">
+                  <div style="font-weight:500">{{ e.name }}</div>
+                  <div style="font-size:12px;color:var(--muted);margin-top:1px">{{ e.desc }}</div>
+                </td>
+                <td style="padding:14px 16px;border-bottom:1px solid {{ e.bb }};color:var(--fg2);white-space:nowrap"><span style="display:inline-flex;align-items:center;gap:6px"><span style="color:var(--faint);display:flex"><lucide-icon name="folder" size="14"></lucide-icon></span>{{ e.collection }}</span></td>
+                <td style="padding:14px 16px;border-bottom:1px solid {{ e.bb }};text-align:right;font-family:ui-monospace,'SF Mono',Menlo,'JetBrains Mono',monospace;font-size:13px">{{ e.q }}</td>
+                <td style="padding:14px 16px;border-bottom:1px solid {{ e.bb }}">
+                  <sc-if value="{{ e.hasScore }}">
+                    <span style="display:inline-flex;align-items:center;gap:10px">
+                      <span style="font-family:ui-monospace,'SF Mono',Menlo,'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:{{ e.scoreColor }}">{{ e.score }}</span>
+                      <span style="width:64px;height:4px;border-radius:999px;background:var(--surface);overflow:hidden;display:block"><span style="display:block;height:100%;border-radius:999px;width:{{ e.pct }};background:{{ e.barColor }}"></span></span>
+                    </span>
+                  </sc-if>
+                  <sc-if value="{{ e.noScore }}"><span style="color:var(--faint)">—</span></sc-if>
+                </td>
+                <td style="padding:14px 16px;border-bottom:1px solid {{ e.bb }};color:var(--muted);white-space:nowrap">{{ e.last }}</td>
+                <td style="padding:14px 12px;border-bottom:1px solid {{ e.bb }};color:var(--faint)"><lucide-icon name="chevron-right"></lucide-icon></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ dialog }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeDialog }}" style="position:fixed;inset:0;background:var(--overlay);z-index:60;display:grid;place-items:center;padding:16px">
+      <div role="dialog" aria-modal="true" onClick="{{ stop }}" style="width:min(480px,100%);background:var(--bg);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:24px;animation:dmin .16s ease-out">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div>
+            <h2 style="font-size:17px;font-weight:600;letter-spacing:-0.015em;margin:0">New eval set</h2>
+            <p style="margin:4px 0 0;color:var(--muted);font-size:13px">Add questions and expected answers after it's created.</p>
+          </div>
+          <button onClick="{{ closeDialog }}" aria-label="Close" style="width:30px;height:30px;display:grid;place-items:center;border-radius:999px;border:0;background:transparent;color:var(--muted);cursor:pointer;margin:-4px -6px 0 0" style-hover="background:var(--surface);color:var(--fg)"><lucide-icon name="x"></lucide-icon></button>
+        </div>
+        <form onSubmit="{{ create }}" style="display:flex;flex-direction:column;gap:16px;margin-top:20px">
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:13px;font-weight:500">Name</span>
+            <input autoFocus="{{ true }}" value="{{ name }}" onChange="{{ onName }}" placeholder="e.g. Benefits FAQ" style="height:40px;padding:0 16px;border-radius:999px;background:var(--surface);border:1px solid transparent;outline:none;font-size:14px" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);background:var(--bg)">
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:13px;font-weight:500">Collection</span>
+            <span style="position:relative;display:flex">
+              <select value="{{ col }}" onChange="{{ onCol }}" style="flex:1;appearance:none;-webkit-appearance:none;height:40px;padding:0 40px 0 16px;border-radius:999px;background:var(--surface);border:1px solid transparent;outline:none;font-size:14px;cursor:pointer" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)">
+                <sc-for list="{{ collections }}" as="c"><option value="{{ c }}">{{ c }}</option></sc-for>
+              </select>
+              <span style="position:absolute;right:14px;top:12px;pointer-events:none;color:var(--muted);display:flex"><lucide-icon name="chevron-down"></lucide-icon></span>
+            </span>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:13px;font-weight:500">Description <span style="color:var(--faint);font-weight:400">Optional</span></span>
+            <textarea value="{{ desc }}" onChange="{{ onDesc }}" rows="2" placeholder="What does this eval set cover?" style="padding:10px 16px;border-radius:18px;background:var(--surface);border:1px solid transparent;outline:none;font-size:14px;resize:none;line-height:1.5" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);background:var(--bg)"></textarea>
+          </label>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px">
+            <button type="button" onClick="{{ closeDialog }}" style="height:36px;padding:0 16px;border-radius:999px;border:1px solid var(--border);background:var(--bg);font-size:14px;font-weight:500;cursor:pointer" style-hover="background:var(--surface)">Cancel</button>
+            <button type="submit" disabled="{{ createDisabled }}" style="height:36px;padding:0 16px;border-radius:999px;border:0;background:var(--btn);color:var(--btn-fg);font-size:14px;font-weight:500;opacity:{{ createOpacity }};cursor:{{ createCursor }}">Create eval set</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    dialog: false, name: '', desc: '', col: 'Employee Handbook 2026', created: [],
+    base: [
+      { name: 'Handbook regression', desc: 'HR policy questions checked after every upload', collection: 'Employee Handbook 2026', q: 40, score: 0.86, last: '2h ago' },
+      { name: 'Board report Q&A', desc: 'Financial figures and decisions from Q3', collection: 'Q3 Board Reports', q: 25, score: 0.78, last: 'Yesterday' },
+      { name: 'API reference coverage', desc: 'Endpoint, parameter and error-code lookups', collection: 'API Documentation', q: 120, score: 0.91, last: 'Sep 22' },
+      { name: 'Contract clause lookup', desc: 'Termination, liability and renewal terms', collection: 'Vendor Contracts', q: 32, score: 0.64, last: 'Sep 19' },
+      { name: 'SOC 2 control questions', desc: 'Security questionnaire answers', collection: 'Security & Compliance', q: 58, score: null, last: 'Never run' }
+    ]
+  };
+  create = (e) => {
+    e.preventDefault();
+    const name = this.state.name.trim();
+    if (!name) return;
+    this.setState(s => ({ dialog: false, name: '', desc: '', created: [{ name, desc: s.desc.trim() || 'No description', collection: s.col, q: 0, score: null, last: 'Never run' }, ...s.created] }));
+    this.props.toast && this.props.toast(`Add questions to “${name}” to run your first eval.`, 'success', 'Eval set created');
+  };
+  renderVals() {
+    const vs = this.props.viewState || 'populated', nav = this.props.nav || (() => {}), loading = vs === 'loading';
+    const list = loading ? [] : [...this.state.created, ...(vs === 'empty' ? [] : this.state.base)];
+    const rows = list.map((e, i) => ({
+      ...e, bb: i === list.length - 1 ? 'transparent' : 'var(--border)', open: () => nav('eval'),
+      hasScore: e.score != null, noScore: e.score == null, score: e.score != null ? e.score.toFixed(2) : '',
+      pct: e.score != null ? Math.round(e.score * 100) + '%' : '0%',
+      scoreColor: e.score != null && e.score < 0.7 ? 'var(--warn)' : 'var(--fg)',
+      barColor: e.score != null && e.score < 0.7 ? 'var(--warn)' : 'var(--fg)'
+    }));
+    const dis = !this.state.name.trim();
+    return {
+      mobile: !!this.props.mobile, onMenu: this.props.onMenu, loading,
+      empty: !loading && list.length === 0, showTable: loading || list.length > 0,
+      skel: ['48%', '36%', '52%', '40%', '44%'].map(w => ({ w })), rows,
+      dialog: this.state.dialog, openDialog: () => this.setState({ dialog: true }), closeDialog: () => this.setState({ dialog: false }), stop: (e) => e.stopPropagation(),
+      name: this.state.name, desc: this.state.desc, col: this.state.col,
+      onName: (e) => this.setState({ name: e.target.value }), onDesc: (e) => this.setState({ desc: e.target.value }), onCol: (e) => this.setState({ col: e.target.value }),
+      collections: ['Employee Handbook 2026', 'Q3 Board Reports', 'API Documentation', 'Vendor Contracts', 'Security & Compliance', 'Customer Support Playbooks'],
+      create: this.create, createDisabled: dis, createOpacity: dis ? 0.4 : 1, createCursor: dis ? 'not-allowed' : 'pointer'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+:root,[data-theme="light"]{--bg:#ffffff;--fg:#0a0a0a;--fg2:#404040;--muted:#737373;--faint:#a3a3a3;--border:#e5e5e5;--border2:#d4d4d4;--surface:#f5f5f5;--surface2:#fafafa;--accent:#1d4ed8;--accent-bg:#eef3ff;--accent-bd:#c9d8fb;--btn:#0a0a0a;--btn-fg:#ffffff;--btn-hover:#262626;--ok:#15803d;--ok-bg:#effaf2;--warn:#a16207;--warn-bg:#fdf8e8;--err:#b91c1c;--err-bg:#fdf1f1;--hl:#fdf3c4;--overlay:rgba(10,10,10,.24);--shadow:0 1px 2px rgba(0,0,0,.04),0 12px 32px -4px rgba(0,0,0,.12);color-scheme:light}
+[data-theme="dark"]{--bg:#0a0a0a;--fg:#fafafa;--fg2:#d4d4d4;--muted:#a3a3a3;--faint:#737373;--border:#262626;--border2:#3a3a3a;--surface:#171717;--surface2:#111111;--accent:#7ea4ff;--accent-bg:#131d33;--accent-bd:#24365f;--btn:#fafafa;--btn-fg:#0a0a0a;--btn-hover:#e5e5e5;--ok:#5fc987;--ok-bg:#0f2117;--warn:#e0b04a;--warn-bg:#241c0b;--err:#f08080;--err-bg:#2a1111;--hl:#3b3413;--overlay:rgba(0,0,0,.6);--shadow:0 1px 2px rgba(0,0,0,.5),0 16px 40px -4px rgba(0,0,0,.7);color-scheme:dark}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,"SF Pro Text","Inter","Segoe UI",sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+*,*::before,*::after{box-sizing:border-box}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+@keyframes dmspin{to{transform:rotate(360deg)}}
+@keyframes dmpulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes dmin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+<script src="icons.js"></script>
+</helmet>
+<div data-screen-label="04 Collection detail" style="min-height:100vh;background:var(--bg);color:var(--fg)">
+  <header style="height:56px;display:flex;align-items:center;gap:12px;padding:0 clamp(16px,3vw,24px);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10">
+    <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ onMenu }}" aria-label="Open menu" style="width:32px;height:32px;margin-left:-6px;display:inline-grid;place-items:center;border-radius:999px;border:0;background:transparent;color:var(--fg);cursor:pointer" style-hover="background:var(--surface)"><lucide-icon name="menu"></lucide-icon></button>
+    </sc-if>
+    <nav aria-label="Breadcrumb" style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;font-size:14px;white-space:nowrap;overflow:hidden">
+      <button onClick="{{ goCollections }}" style="border:0;background:transparent;padding:0;color:var(--muted);cursor:pointer;font-size:14px" style-hover="color:var(--fg)">Collections</button>
+      <span style="color:var(--faint)">/</span>
+      <span style="font-weight:500;overflow:hidden;text-overflow:ellipsis">Employee Handbook 2026</span>
+    </nav>
+    <button onClick="{{ goChat }}" style="height:34px;padding:0 14px 0 12px;border-radius:999px;border:0;background:var(--btn);color:var(--btn-fg);font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;flex:none" style-hover="background:var(--btn-hover)"><lucide-icon name="message-square"></lucide-icon>Open chat</button>
+  </header>
+
+  <div style="max-width:1120px;margin:0 auto;padding:32px clamp(16px,4vw,32px) 64px">
+    <h1 style="font-size:24px;font-weight:600;letter-spacing:-0.025em;margin:0">Employee Handbook 2026</h1>
+    <p style="margin:4px 0 0;color:var(--muted)">Policies, benefits, leave and code of conduct for all full-time and part-time staff.</p>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted);font-family:ui-monospace,'SF Mono',Menlo,'JetBrains Mono',monospace">
+      <span>{{ stats.docs }}</span><span>{{ stats.chunks }}</span><span>{{ stats.pages }}</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px;margin-top:28px">
+      <div onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" onClick="{{ browse }}" role="button" tabIndex="0" style="grid-column:1 / -1;border:1.5px dashed {{ dz.border }};background:{{ dz.bg }};border-radius:12px;padding:28px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;cursor:pointer;transition:background .15s,border-color .15s" style-hover="border-color:var(--faint)">
+        <div style="width:40px;height:40px;border-radius:999px;border:1px solid var(--border);background:var(--bg);display:grid;place-items:center;color:var(--fg2)"><lucide-icon name="upload" size="18"></lucide-icon></div>
+        <div style="font-size:14px;font-weight:500">{{ dz.label }}</div>
+        <div style="font-size:13px;color:var(--muted)">Drop PDF, DOCX, TXT or MD — max 20 MB · or <span style="color:var(--accent)">browse files</span></div>
+        <input ref="{{ fileRef }}" type="file" multiple="{{ true }}" accept=".pdf,.docx,.txt,.md" onChange="{{ onFiles }}" style="display:none">
+      </div>
+      <form onSubmit="{{ addUrl }}" style="grid-column:1 / -1;display:flex;gap:8px;align-items:center">
+        <label style="position:relative;display:flex;flex:1;min-width:0">
+          <span style="position:absolute;left:14px;top:12px;color:var(--faint);display:flex"><lucide-icon name="link" size="14"></lucide-icon></span>
+          <input value="{{ url }}" onChange="{{ onUrl }}" placeholder="https://docs.acme.com/benefits" aria-label="Add URL" style="flex:1;min-width:0;height:38px;padding:0 16px 0 36px;border-radius:999px;background:var(--surface);border:1px solid transparent;outline:none;font-size:14px" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);background:var(--bg)">
+        </label>
+        <button type="submit" disabled="{{ urlDisabled }}" style="height:38px;padding:0 16px;border-radius:999px;border:1px solid var(--border);background:var(--bg);font-size:14px;font-weight:500;flex:none;display:inline-flex;align-items:center;gap:6px;opacity:{{ urlOpacity }};cursor:{{ urlCursor }}" style-hover="background:var(--surface)">
+          <sc-if value="{{ fetching }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;animation:dmspin .8s linear infinite"><lucide-icon name="loader-circle" size="14"></lucide-icon></span></sc-if>Add URL
+        </button>
+      </form>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:36px 0 12px">
+      <h2 style="font-size:15px;font-weight:600;letter-spacing:-0.01em;margin:0">Documents</h2>
+      <sc-if value="{{ hasDocs }}" hint-placeholder-val="{{ true }}"><span style="font-size:13px;color:var(--muted)">{{ statusSummary }}</span></sc-if>
+    </div>
+
+    <div style="position:relative;border:1px solid var(--border);border-radius:12px;overflow-x:{{ tableOverflow }}">
+      <table style="width:100%;border-collapse:collapse;min-width:820px;font-size:14px">
+        <thead>
+          <tr>
+            <th style="text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border)">Title</th>
+            <th style="text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);width:80px">Type</th>
+            <th style="text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);width:140px">Status</th>
+            <th style="text-align:right;font-size:12px;font-weight:500;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);width:80px">Chunks</th>
+            <th style="text-align:right;font-size:12px;font-weight:500;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);width:72px">Pages</th>
+            <th style="text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);width:120px">Added</th>
+            <th aria-label="Actions" style="width:52px;border-bottom:1px solid var(--border)"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{ skel }}" as="s" hint-placeholder-count="6">
+              <tr style="animation:dmpulse 1.4s ease-in-out infinite">
+                <td style="padding:14px 16px;border-bottom:1px solid var(--border)"><div style="display:flex;gap:10px;align-items:center"><div style="width:28px;height:28px;border-radius:7px;background:var(--surface)"></div><div style="height:12px;border-radius:6px;background:var(--surface);width:{{ s.w }}"></div></div></td>
+                <td style="padding:14px 16px;border-bottom:1px solid var(--border)"><div style="height:12px;width:36px;border-radius:6px;background:var(--surface)"></div></td>
+                <td style="padding:14px 16px;border-bottom:1px solid var(--border)"><div style="height:20px;width:72px;border-radius:999px;background:var(--surface)"></div></td>
+                <td style="padding:14px 16px;border-bottom:1px solid var(--border)"><div style="height:12px;width:32px;border-radius:6px;background:var(--surface);margin-left:auto"></div></td>
+                <td style="padding:14px 16px;border-bottom:1px solid var(--border)"><div style="height:12px;width:24px;border-radius:6px;background:var(--surface);margin-left:auto"></div></td>
+                <td style="padding:14px 16px;border-bottom:1px solid var(--border)"><div style="height:12px;width:64px;border-radius:6px;background:var(--surface)"></div></td>
+                <td style="border-bottom:1px solid var(--border)"></td>
+              </tr>
+            </sc-for>
+          </sc-if>
+          <sc-for list="{{ rows }}" as="d" hint-placeholder-count="8">
+            <tr style="animation:dmin .2s ease-out" style-hover="background:var(--surface2)">
+              <td style="padding:12px 16px;border-bottom:1px solid {{ d.bb }}">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div style="width:28px;height:28px;border-radius:7px;background:var(--surface);display:grid;place-items:center;color:var(--fg2);flex:none"><lucide-icon name="{{ d.icon }}" size="15"></lucide-icon></div>
+                  <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px">{{ d.title }}</span>
+                </div>
+              </td>
+              <td style="padding:12px 16px;border-bottom:1px solid {{ d.bb }};color:var(--muted);font-size:12px;font-family:ui-monospace,'SF Mono',Menlo,'JetBrains Mono',monospace">{{ d.type }}</td>
+              <td style="padding:12px 16px;border-bottom:1px solid {{ d.bb }}">
+                <span onMouseEnter="{{ d.tipOn }}" onMouseLeave="{{ d.tipOff }}" style="position:relative;display:inline-flex">
+                  <span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;background:{{ d.st.bg }};color:{{ d.st.fg }};cursor:{{ d.st.cursor }}">
+                    <sc-if value="{{ d.st.spin }}"><span style="display:inline-flex;animation:dmspin .9s linear infinite"><lucide-icon name="loader-circle" size="12" stroke="2"></lucide-icon></span></sc-if>
+                    <sc-if value="{{ d.st.dot }}"><span style="width:6px;height:6px;border-radius:999px;background:currentColor"></span></sc-if>
+                    <sc-if value="{{ d.st.failed }}"><lucide-icon name="circle-alert" size="12" stroke="2"></lucide-icon></sc-if>
+                    {{ d.st.label }}
+                  </span>
+                  <sc-if value="{{ d.showTip }}">
+                    <span role="tooltip" style="position:absolute;left:0;bottom:calc(100% + 8px);width:260px;padding:10px 12px;border-radius:10px;background:var(--fg);color:var(--bg);font-size:12px;line-height:1.45;box-shadow:var(--shadow);z-index:20;white-space:normal">
+                      <span style="display:block;font-weight:500;margin-bottom:2px">Processing failed</span>{{ d.error }}
+                    </span>
+                  </sc-if>
+                </span>
+              </td>
+              <td style="padding:12px 16px;border-bottom:1px solid {{ d.bb }};text-align:right;font-family:ui-monospace,'SF Mono',Menlo,'JetBrains Mono',monospace;font-size:13px;color:{{ d.numColor }}">{{ d.chunks }}</td>
+              <td style="padding:12px 16px;border-bottom:1px solid {{ d.bb }};text-align:right;font-family:ui-monospace,'SF Mono',Menlo,'JetBrains Mono',monospace;font-size:13px;color:{{ d.numColor }}">{{ d.pages }}</td>
+              <td style="padding:12px 16px;border-bottom:1px solid {{ d.bb }};color:var(--muted);white-space:nowrap">{{ d.added }}</td>
+              <td style="padding:12px 10px;border-bottom:1px solid {{ d.bb }};text-align:right">
+                <span style="position:relative;display:inline-flex">
+                  <button onClick="{{ d.toggleMenu }}" aria-label="Document actions" aria-haspopup="menu" style="width:30px;height:30px;display:grid;place-items:center;border-radius:999px;border:0;cursor:pointer;color:var(--muted);background:{{ d.menuBg }}" style-hover="background:var(--surface);color:var(--fg)"><lucide-icon name="ellipsis"></lucide-icon></button>
+                  <sc-if value="{{ d.menuOpen }}">
+                    <div role="menu" onClick="{{ stop }}" style="position:absolute;right:0;top:{{ d.menuTop }};bottom:{{ d.menuBottom }};width:180px;padding:4px;border:1px solid var(--border);border-radius:10px;background:var(--bg);box-shadow:var(--shadow);z-index:30;text-align:left;animation:dmin .12s ease-out">
+                      <button role="menuitem" onClick="{{ d.reprocess }}" style="width:100%;display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;border-radius:7px;border:0;background:transparent;cursor:pointer;font-size:13px" style-hover="background:var(--surface)"><lucide-icon name="refresh-cw" size="14"></lucide-icon>Reprocess</button>
+                      <button role="menuitem" onClick="{{ d.remove }}" style="width:100%;display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;border-radius:7px;border:0;background:transparent;cursor:pointer;font-size:13px;color:var(--err)" style-hover="background:var(--err-bg)"><lucide-icon name="trash-2" size="14"></lucide-icon>Delete</button>
+                    </div>
+                  </sc-if>
+                </span>
+              </td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+      <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:56px 24px;text-align:center;display:flex;flex-direction:column;align-items:center">
+          <div style="width:40px;height:40px;border-radius:999px;border:1px solid var(--border);display:grid;place-items:center;color:var(--muted)"><lucide-icon name="file-text" size="18"></lucide-icon></div>
+          <h3 style="font-size:15px;font-weight:600;margin:14px 0 0">No documents yet</h3>
+          <p style="margin:4px 0 18px;color:var(--muted);max-width:340px">Upload files or add a URL. Documents are chunked and indexed automatically.</p>
+          <button onClick="{{ browse }}" style="height:36px;padding:0 16px 0 14px;border-radius:999px;border:0;background:var(--btn);color:var(--btn-fg);font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px" style-hover="background:var(--btn-hover)"><lucide-icon name="upload"></lucide-icon>Upload documents</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    w: window.innerWidth, menu: null, tip: null, url: '', drag: false, fetching: false, added: [], removed: {}, over: {},
+    docs: [
+      { id: 1, title: 'Employee_Handbook_2026.pdf', type: 'PDF', status: 'ready', chunks: 312, pages: 86, added: 'Sep 24, 2026' },
+      { id: 2, title: 'Parental_Leave_Policy.docx', type: 'DOCX', status: 'ready', chunks: 48, pages: 12, added: 'Sep 24, 2026' },
+      { id: 3, title: 'Remote_Work_Guidelines.pdf', type: 'PDF', status: 'processing', chunks: null, pages: 18, added: 'Today, 9:41' },
+      { id: 4, title: 'benefits.acme.com/2026-open-enrollment', type: 'URL', status: 'ready', chunks: 36, pages: null, added: 'Sep 23, 2026' },
+      { id: 5, title: 'Travel_and_Expense_Policy.pdf', type: 'PDF', status: 'failed', chunks: null, pages: null, added: 'Sep 22, 2026', error: 'Text extraction failed: the PDF is password-protected. Remove the password and upload again.' },
+      { id: 6, title: 'Code_of_Conduct.md', type: 'MD', status: 'ready', chunks: 22, pages: 6, added: 'Sep 20, 2026' },
+      { id: 7, title: 'IT_Acceptable_Use.txt', type: 'TXT', status: 'queued', chunks: null, pages: null, added: 'Today, 9:42' },
+      { id: 8, title: 'Holiday_Calendar_2026.pdf', type: 'PDF', status: 'ready', chunks: 4, pages: 2, added: 'Sep 18, 2026' }
+    ]
+  };
+  fileRef = React.createRef();
+  componentDidMount() {
+    this.close = () => this.state.menu != null && this.setState({ menu: null });
+    document.addEventListener('click', this.close);
+    this.onResize = () => this.setState({ w: window.innerWidth });
+    window.addEventListener('resize', this.onResize);
+  }
+  componentWillUnmount() { document.removeEventListener('click', this.close); window.removeEventListener('resize', this.onResize); (this.timers || []).forEach(clearTimeout); }
+  later(fn, ms) { (this.timers = this.timers || []).push(setTimeout(fn, ms)); }
+  toast(m, k, t) { this.props.toast && this.props.toast(m, k, t); }
+  patch(id, p) { this.setState(s => ({ over: { ...s.over, [id]: { ...(s.over[id] || {}), ...p } } })); }
+  ingest(doc) {
+    this.setState(s => ({ added: [doc, ...s.added] }));
+    this.later(() => this.patch(doc.id, { status: 'processing' }), 900);
+    this.later(() => this.patch(doc.id, { status: 'ready', chunks: doc._c, pages: doc._p }), 3600);
+  }
+  handleFiles(files) {
+    Array.from(files || []).forEach(f => {
+      const ext = (f.name.split('.').pop() || '').toLowerCase();
+      if (!['pdf', 'docx', 'txt', 'md'].includes(ext)) return this.toast(`${f.name} isn't supported. Upload PDF, DOCX, TXT or MD.`, 'error', 'Unsupported file type');
+      if (f.size > 20 * 1024 * 1024) return this.toast(`${f.name} is ${(f.size / 1048576).toFixed(1)} MB. The limit is 20 MB.`, 'error', 'File too large');
+      const pages = Math.max(1, Math.round(f.size / 40000));
+      this.ingest({ id: 'f' + Math.random(), title: f.name, type: ext.toUpperCase(), status: 'queued', chunks: null, pages: null, added: 'Just now', _c: Math.max(2, Math.round(pages * 3.4)), _p: ext === 'pdf' || ext === 'docx' ? pages : null });
+    });
+  }
+  addUrl = (e) => {
+    e.preventDefault();
+    const u = this.state.url.trim();
+    if (!u) return;
+    if (!/^https?:\/\/[^\s.]+\.[^\s]+$/i.test(u)) return this.toast('Enter a full URL starting with https://', 'error', 'Invalid URL');
+    this.setState({ fetching: true });
+    this.later(() => {
+      this.setState({ fetching: false });
+      if (/intranet|internal|localhost/i.test(u)) return this.toast('The server returned 403 Forbidden. Check that the page is publicly reachable.', 'error', "Couldn't fetch URL");
+      this.setState({ url: '' });
+      this.ingest({ id: 'u' + Math.random(), title: u.replace(/^https?:\/\//, ''), type: 'URL', status: 'queued', chunks: null, pages: null, added: 'Just now', _c: 18, _p: null });
+    }, 900);
+  };
+  renderVals() {
+    const vs = this.props.viewState || 'populated', nav = this.props.nav || (() => {}), mobile = !!this.props.mobile;
+    const loading = vs === 'loading';
+    const base = vs === 'empty' ? [] : this.state.docs;
+    const all = loading ? [] : [...this.state.added, ...base].filter(d => !this.state.removed[d.id]).map(d => ({ ...d, ...(this.state.over[d.id] || {}) }));
+    const ST = {
+      ready: { label: 'Ready', bg: 'var(--ok-bg)', fg: 'var(--ok)', dot: true },
+      processing: { label: 'Processing', bg: 'var(--warn-bg)', fg: 'var(--warn)', spin: true },
+      queued: { label: 'Queued', bg: 'var(--surface)', fg: 'var(--muted)', dot: true },
+      failed: { label: 'Failed', bg: 'var(--err-bg)', fg: 'var(--err)', failed: true, cursor: 'help' }
+    };
+    const icons = { PDF: 'file-text', DOCX: 'file-type', TXT: 'file', MD: 'file-code', URL: 'globe' };
+    const n = all.length;
+    const rows = all.map((d, i) => ({
+      ...d, icon: icons[d.type] || 'file', st: { cursor: 'default', ...ST[d.status] },
+      chunks: d.chunks == null ? '—' : d.chunks.toLocaleString(), pages: d.pages == null ? '—' : d.pages,
+      numColor: d.chunks == null ? 'var(--faint)' : 'var(--fg2)',
+      bb: i === n - 1 ? 'transparent' : 'var(--border)',
+      showTip: this.state.tip === d.id && d.status === 'failed',
+      tipOn: () => this.setState({ tip: d.id }), tipOff: () => this.setState({ tip: null }),
+      menuOpen: this.state.menu === d.id, menuBg: this.state.menu === d.id ? 'var(--surface)' : 'transparent',
+      menuTop: i >= n - 2 && n > 3 && (mobile || this.state.w - 240 < 900) ? 'auto' : 'calc(100% + 4px)', menuBottom: i >= n - 2 && n > 3 && (mobile || this.state.w - 240 < 900) ? 'calc(100% + 4px)' : 'auto',
+      toggleMenu: (e) => { e.stopPropagation(); this.setState(s => ({ menu: s.menu === d.id ? null : d.id })); },
+      reprocess: () => {
+        this.setState({ menu: null }); this.patch(d.id, { status: 'processing', chunks: null });
+        this.later(() => this.patch(d.id, d.status === 'failed' ? { status: 'failed' } : { status: 'ready', chunks: d.chunks || 24 }), 2800);
+        this.toast(`${d.title} was added to the processing queue.`, 'info', 'Reprocessing');
+      },
+      remove: () => {
+        this.setState(s => ({ menu: null, removed: { ...s.removed, [d.id]: true } }));
+        this.toast(`${d.title} and its ${d.chunks || 0} chunks were removed.`, 'success', 'Document deleted');
+      }
+    }));
+    const count = (k) => all.filter(d => d.status === k).length;
+    const chunks = all.reduce((a, d) => a + (d.chunks || 0), 0), pages = all.reduce((a, d) => a + (d.pages || 0), 0);
+    const parts = [['ready', 'ready'], ['processing', 'processing'], ['queued', 'queued'], ['failed', 'failed']].map(([k, l]) => count(k) ? `${count(k)} ${l}` : null).filter(Boolean);
+    const u = this.state.url.trim(), ud = !u || this.state.fetching;
+    return {
+      mobile, onMenu: this.props.onMenu,
+      goCollections: () => nav('collections'), goChat: () => nav('chat'),
+      stats: { docs: `${n} documents`, chunks: `${chunks.toLocaleString()} chunks`, pages: `${pages} pages` },
+      loading, empty: !loading && n === 0, hasDocs: n > 0, statusSummary: parts.join(' · '),
+      skel: ['52%', '38%', '46%', '60%', '34%', '44%'].map(w => ({ w })), rows,
+      tableOverflow: mobile || this.state.w - 240 < 900 ? 'auto' : 'visible', stop: (e) => e.stopPropagation(),
+      fileRef: this.fileRef, browse: () => this.fileRef.current && this.fileRef.current.click(),
+      onFiles: (e) => { this.handleFiles(e.target.files); e.target.value = ''; },
+      onDragOver: (e) => { e.preventDefault(); if (!this.state.drag) this.setState({ drag: true }); },
+      onDragLeave: () => this.setState({ drag: false }),
+      onDrop: (e) => { e.preventDefault(); this.setState({ drag: false }); this.handleFiles(e.dataTransfer.files); },
+      dz: this.state.drag ? { border: 'var(--accent)', bg: 'var(--accent-bg)', label: 'Release to upload' } : { border: 'var(--border2)', bg: 'var(--surface2)', label: 'Upload documents' },
+      url: this.state.url, onUrl: (e) => this.setState({ url: e.target.value }), addUrl: this.addUrl, fetching: this.state.fetching,
+      urlDisabled: ud, urlOpacity: ud && !this.state.fetching ? 0.45 : 1, urlCursor: ud ? 'not-allowed' : 'pointer'
+    };
+  }
+}
+</script>
+</body>
+</html>

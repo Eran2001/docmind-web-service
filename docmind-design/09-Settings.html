@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+:root,[data-theme="light"]{--bg:#ffffff;--fg:#0a0a0a;--fg2:#404040;--muted:#737373;--faint:#a3a3a3;--border:#e5e5e5;--border2:#d4d4d4;--surface:#f5f5f5;--surface2:#fafafa;--accent:#1d4ed8;--accent-bg:#eef3ff;--accent-bd:#c9d8fb;--btn:#0a0a0a;--btn-fg:#ffffff;--btn-hover:#262626;--ok:#15803d;--ok-bg:#effaf2;--warn:#a16207;--warn-bg:#fdf8e8;--err:#b91c1c;--err-bg:#fdf1f1;--hl:#fdf3c4;--overlay:rgba(10,10,10,.24);--shadow:0 1px 2px rgba(0,0,0,.04),0 12px 32px -4px rgba(0,0,0,.12);color-scheme:light}
+[data-theme="dark"]{--bg:#0a0a0a;--fg:#fafafa;--fg2:#d4d4d4;--muted:#a3a3a3;--faint:#737373;--border:#262626;--border2:#3a3a3a;--surface:#171717;--surface2:#111111;--accent:#7ea4ff;--accent-bg:#131d33;--accent-bd:#24365f;--btn:#fafafa;--btn-fg:#0a0a0a;--btn-hover:#e5e5e5;--ok:#5fc987;--ok-bg:#0f2117;--warn:#e0b04a;--warn-bg:#241c0b;--err:#f08080;--err-bg:#2a1111;--hl:#3b3413;--overlay:rgba(0,0,0,.6);--shadow:0 1px 2px rgba(0,0,0,.5),0 16px 40px -4px rgba(0,0,0,.7);color-scheme:dark}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,"SF Pro Text","Inter","Segoe UI",sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+*,*::before,*::after{box-sizing:border-box}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+@keyframes dmspin{to{transform:rotate(360deg)}}
+@keyframes dmin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+<script src="icons.js"></script>
+</helmet>
+<div data-screen-label="10 Settings" style="min-height:100vh;background:var(--bg);color:var(--fg)">
+  <header style="height:56px;display:flex;align-items:center;gap:12px;padding:0 clamp(16px,3vw,24px);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10">
+    <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ onMenu }}" aria-label="Open menu" style="width:32px;height:32px;margin-left:-6px;display:inline-grid;place-items:center;border-radius:999px;border:0;background:transparent;color:var(--fg);cursor:pointer" style-hover="background:var(--surface)"><lucide-icon name="menu"></lucide-icon></button>
+    </sc-if>
+    <nav aria-label="Breadcrumb" style="flex:1;min-width:0;font-size:14px;font-weight:500">Settings</nav>
+  </header>
+
+  <div style="max-width:880px;margin:0 auto;padding:32px clamp(16px,4vw,32px) 80px">
+    <h1 style="font-size:24px;font-weight:600;letter-spacing:-0.025em;margin:0">Settings</h1>
+    <p style="margin:4px 0 0;color:var(--muted)">Manage your profile and account security.</p>
+
+    <section style="display:flex;flex-wrap:wrap;gap:16px 40px;padding:32px 0;border-bottom:1px solid var(--border);margin-top:16px">
+      <div style="flex:1 1 200px">
+        <h2 style="font-size:15px;font-weight:600;letter-spacing:-0.01em;margin:0">Profile</h2>
+        <p style="margin:4px 0 0;color:var(--muted);font-size:13px">Shown to teammates in shared collections.</p>
+      </div>
+      <form onSubmit="{{ saveProfile }}" style="flex:2 1 400px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:48px;height:48px;border-radius:999px;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center;font-size:15px;font-weight:500">{{ initials }}</div>
+          <button type="button" style="height:32px;padding:0 14px;border-radius:999px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:500;cursor:pointer" style-hover="background:var(--surface)">Change avatar</button>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:13px;font-weight:500">Full name</span>
+          <input value="{{ name }}" onChange="{{ onName }}" style="height:40px;padding:0 16px;border-radius:999px;background:var(--surface);outline:none;font-size:14px;border:1px solid {{ bName }}" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);background:var(--bg)">
+          <sc-if value="{{ nameErr }}"><span style="font-size:12px;color:var(--err);display:flex;gap:6px;align-items:center;padding-left:14px"><lucide-icon name="circle-alert" size="13"></lucide-icon>Name can't be empty</span></sc-if>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:13px;font-weight:500">Email</span>
+          <input type="email" value="{{ email }}" onChange="{{ onEmail }}" style="height:40px;padding:0 16px;border-radius:999px;background:var(--surface);outline:none;font-size:14px;border:1px solid {{ bEmail }}" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);background:var(--bg)">
+          <sc-if value="{{ emailErr }}"><span style="font-size:12px;color:var(--err);display:flex;gap:6px;align-items:center;padding-left:14px"><lucide-icon name="circle-alert" size="13"></lucide-icon>Enter a valid email address</span></sc-if>
+          <sc-if value="{{ emailHint }}"><span style="font-size:12px;color:var(--muted);padding-left:14px">We'll send a confirmation link to the new address.</span></sc-if>
+        </label>
+        <div style="display:flex;justify-content:flex-end">
+          <button type="submit" disabled="{{ profileDisabled }}" style="height:36px;padding:0 16px;border-radius:999px;border:0;background:var(--btn);color:var(--btn-fg);font-size:14px;font-weight:500;opacity:{{ pOp }};cursor:{{ pCur }}">Save changes</button>
+        </div>
+      </form>
+    </section>
+
+    <section style="display:flex;flex-wrap:wrap;gap:16px 40px;padding:32px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1 1 200px">
+        <h2 style="font-size:15px;font-weight:600;letter-spacing:-0.01em;margin:0">Password</h2>
+        <p style="margin:4px 0 0;color:var(--muted);font-size:13px">Last changed 4 months ago.</p>
+      </div>
+      <form onSubmit="{{ savePw }}" style="flex:2 1 400px;display:flex;flex-direction:column;gap:16px">
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:13px;font-weight:500">Current password</span>
+          <input type="password" value="{{ pw.cur }}" onChange="{{ onCur }}" autocomplete="current-password" style="height:40px;padding:0 16px;border-radius:999px;background:var(--surface);outline:none;font-size:14px;border:1px solid {{ pwB.cur }}" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);background:var(--bg)">
+          <sc-if value="{{ pwE.cur }}"><span style="font-size:12px;color:var(--err);display:flex;gap:6px;align-items:center;padding-left:14px"><lucide-icon name="circle-alert" size="13"></lucide-icon>{{ pwE.cur }}</span></sc-if>
+        </label>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px">
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:13px;font-weight:500">New password</span>
+            <input type="password" value="{{ pw.next }}" onChange="{{ onNext }}" autocomplete="new-password" style="height:40px;padding:0 16px;border-radius:999px;background:var(--surface);outline:none;font-size:14px;border:1px solid {{ pwB.next }}" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);background:var(--bg)">
+            <sc-if value="{{ pwE.next }}"><span style="font-size:12px;color:var(--err);display:flex;gap:6px;align-items:center;padding-left:14px"><lucide-icon name="circle-alert" size="13"></lucide-icon>{{ pwE.next }}</span></sc-if>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:13px;font-weight:500">Confirm new password</span>
+            <input type="password" value="{{ pw.conf }}" onChange="{{ onConf }}" autocomplete="new-password" style="height:40px;padding:0 16px;border-radius:999px;background:var(--surface);outline:none;font-size:14px;border:1px solid {{ pwB.conf }}" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);background:var(--bg)">
+            <sc-if value="{{ pwE.conf }}"><span style="font-size:12px;color:var(--err);display:flex;gap:6px;align-items:center;padding-left:14px"><lucide-icon name="circle-alert" size="13"></lucide-icon>{{ pwE.conf }}</span></sc-if>
+          </label>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <span style="font-size:12px;color:var(--muted)">At least 8 characters.</span>
+          <button type="submit" disabled="{{ pwDisabled }}" style="height:36px;padding:0 16px;border-radius:999px;border:0;background:var(--btn);color:var(--btn-fg);font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:8px;opacity:{{ pwOp }};cursor:{{ pwCur }}">
+            <sc-if value="{{ pwSaving }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;animation:dmspin .8s linear infinite"><lucide-icon name="loader-circle"></lucide-icon></span></sc-if>Update password
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section style="display:flex;flex-wrap:wrap;gap:16px 40px;padding:32px 0">
+      <div style="flex:1 1 200px">
+        <h2 style="font-size:15px;font-weight:600;letter-spacing:-0.01em;margin:0;color:var(--err)">Danger zone</h2>
+        <p style="margin:4px 0 0;color:var(--muted);font-size:13px">Irreversible actions.</p>
+      </div>
+      <div style="flex:2 1 400px;border:1px solid var(--err);border-radius:12px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div style="flex:1 1 220px">
+          <div style="font-weight:500">Delete account</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:2px">Permanently removes your account, your chats and feedback. Shared collections stay with the workspace.</div>
+        </div>
+        <button onClick="{{ openDelete }}" style="height:36px;padding:0 16px;border-radius:999px;border:1px solid var(--err);background:var(--bg);color:var(--err);font-size:14px;font-weight:500;cursor:pointer;flex:none" style-hover="background:var(--err-bg)">Delete account</button>
+      </div>
+    </section>
+  </div>
+
+  <sc-if value="{{ del }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeDelete }}" style="position:fixed;inset:0;background:var(--overlay);z-index:60;display:grid;place-items:center;padding:16px">
+      <div role="alertdialog" aria-modal="true" onClick="{{ stop }}" style="width:min(440px,100%);background:var(--bg);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:24px;animation:dmin .16s ease-out">
+        <h2 style="font-size:17px;font-weight:600;letter-spacing:-0.015em;margin:0">Delete your account?</h2>
+        <p style="margin:6px 0 0;color:var(--muted);font-size:14px">This can't be undone. 128 conversations and all your feedback will be permanently deleted.</p>
+        <label style="display:flex;flex-direction:column;gap:6px;margin-top:20px">
+          <span style="font-size:13px">Type <span style="font-family:ui-monospace,'SF Mono',Menlo,'JetBrains Mono',monospace;font-weight:600">DELETE</span> to confirm</span>
+          <input autoFocus="{{ true }}" value="{{ confirm }}" onChange="{{ onConfirm }}" style="height:40px;padding:0 16px;border-radius:999px;background:var(--surface);border:1px solid transparent;outline:none;font-size:14px;font-family:ui-monospace,'SF Mono',Menlo,'JetBrains Mono',monospace" style-focus="border-color:var(--err);box-shadow:0 0 0 3px var(--err-bg);background:var(--bg)">
+        </label>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px">
+          <button onClick="{{ closeDelete }}" style="height:36px;padding:0 16px;border-radius:999px;border:1px solid var(--border);background:var(--bg);font-size:14px;font-weight:500;cursor:pointer" style-hover="background:var(--surface)">Cancel</button>
+          <button onClick="{{ doDelete }}" disabled="{{ delDisabled }}" style="height:36px;padding:0 16px;border-radius:999px;border:0;background:var(--err);color:#fff;font-size:14px;font-weight:500;opacity:{{ delOp }};cursor:{{ delCur }}">Delete account</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { saved: { name: 'Maya Chen', email: 'maya.chen@acme.com' }, name: 'Maya Chen', email: 'maya.chen@acme.com', pw: { cur: '', next: '', conf: '' }, pwErr: {}, pwSaving: false, del: false, confirm: '' };
+  toast(m, k, t) { this.props.toast && this.props.toast(m, k, t); }
+  savePw = (e) => {
+    e.preventDefault();
+    const { cur, next, conf } = this.state.pw, er = {};
+    if (!cur) er.cur = 'Enter your current password';
+    if (next.length < 8) er.next = 'Use at least 8 characters';
+    if (conf !== next) er.conf = "Passwords don't match";
+    this.setState({ pwErr: er });
+    if (Object.keys(er).length) return;
+    this.setState({ pwSaving: true });
+    setTimeout(() => {
+      if (cur !== 'password123' && cur.length < 6) { this.setState({ pwSaving: false, pwErr: { cur: 'Current password is incorrect' } }); return; }
+      this.setState({ pwSaving: false, pw: { cur: '', next: '', conf: '' } });
+      this.toast('Other sessions have been signed out.', 'success', 'Password updated');
+    }, 900);
+  };
+  renderVals() {
+    const st = this.state, validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(st.email);
+    const dirty = st.name !== st.saved.name || st.email !== st.saved.email;
+    const nameErr = !st.name.trim(), emailErr = !!st.email && !validEmail;
+    const pDis = !dirty || nameErr || !validEmail;
+    const pwDis = !st.pw.cur || !st.pw.next || !st.pw.conf || st.pwSaving;
+    const pwField = (k) => (e) => { const v = e.target.value; this.setState(s => ({ pw: { ...s.pw, [k]: v }, pwErr: { ...s.pwErr, [k]: undefined } })); };
+    const E = st.pwErr, bd = (k) => (E[k] ? 'var(--err)' : 'transparent');
+    const delDis = st.confirm !== 'DELETE';
+    return {
+      mobile: !!this.props.mobile, onMenu: this.props.onMenu,
+      initials: st.name.trim().split(/\s+/).map(s => s[0] || '').join('').slice(0, 2).toUpperCase() || '?',
+      name: st.name, email: st.email, onName: (e) => this.setState({ name: e.target.value }), onEmail: (e) => this.setState({ email: e.target.value }),
+      nameErr, emailErr, emailHint: !emailErr && st.email !== st.saved.email,
+      bName: nameErr ? 'var(--err)' : 'transparent', bEmail: emailErr ? 'var(--err)' : 'transparent',
+      profileDisabled: pDis, pOp: pDis ? 0.4 : 1, pCur: pDis ? 'not-allowed' : 'pointer',
+      saveProfile: (e) => { e.preventDefault(); if (pDis) return; this.setState({ saved: { name: st.name, email: st.email } }); this.toast('Your profile has been updated.', 'success', 'Saved'); },
+      pw: st.pw, onCur: pwField('cur'), onNext: pwField('next'), onConf: pwField('conf'),
+      pwE: { cur: E.cur, next: E.next, conf: E.conf }, pwB: { cur: bd('cur'), next: bd('next'), conf: bd('conf') },
+      pwDisabled: pwDis, pwOp: pwDis && !st.pwSaving ? 0.4 : st.pwSaving ? 0.6 : 1, pwCur: pwDis ? 'not-allowed' : 'pointer', pwSaving: st.pwSaving, savePw: this.savePw,
+      del: st.del, openDelete: () => this.setState({ del: true, confirm: '' }), closeDelete: () => this.setState({ del: false }), stop: (e) => e.stopPropagation(),
+      confirm: st.confirm, onConfirm: (e) => this.setState({ confirm: e.target.value }),
+      delDisabled: delDis, delOp: delDis ? 0.4 : 1, delCur: delDis ? 'not-allowed' : 'pointer',
+      doDelete: () => { if (delDis) return; this.setState({ del: false }); this.toast('Account deletion is disabled in this demo workspace.', 'error', "Couldn't delete account"); }
+    };
+  }
+}
+</script>
+</body>
+</html>
