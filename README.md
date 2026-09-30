@@ -2,7 +2,7 @@
 
 Chat with your documents. Monorepo layout:
 
-- `apps/web` — Next.js 15 frontend (built from `docmind-design/*.html`)
+- `apps/web` — Next.js 15 frontend
 - `packages/shared` — API types, zod schemas and SSE event types shared by web and (later) api
 
 `apps/api` and `services/ai` are not built yet; see `01-docmind-rag-platform.md`.
@@ -29,4 +29,4 @@ Routing only in `src/app`; screens in `src/views/<screen>`. Data flows
 component → `queries/` hook → `services/` function → `lib/axios.ts`. Server state lives in TanStack
 Query, UI state in Zustand (`stores/`). The chat stream uses `lib/sse.ts` (fetch + ReadableStream).
 
-Settings (`09-Settings.html`) is intentionally not built: the spec has no endpoints for it.
+Settings (`09-Settings.html`) is built at `/settings`. The spec has no endpoints for it, so the mock adds `PATCH /auth/me`, `POST /auth/change-password` and `DELETE /auth/me`; the real API needs the same three (and "wrong-password" as the current password fails in the mock).

@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { LoginInput, RegisterInput, User } from "@docmind/shared";
+import type {
+  ChangePasswordInput,
+  LoginInput,
+  RegisterInput,
+  UpdateProfileInput,
+  User,
+} from "@docmind/shared";
 
 import { queryKeys } from "@/configs/query-keys";
 import { authService } from "@/services/auth.service";
@@ -34,5 +40,28 @@ export function useLogout() {
   return useMutation({
     mutationFn: authService.logout,
     onSettled: () => qc.clear(),
+  });
+}
+
+export function useUpdateProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: UpdateProfileInput) => authService.updateProfile(input),
+    onSuccess: (user: User) => qc.setQueryData(queryKeys.auth.me, user),
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (input: Pick<ChangePasswordInput, "currentPassword" | "newPassword">) =>
+      authService.changePassword(input),
+  });
+}
+
+export function useDeleteAccount() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: authService.deleteAccount,
+    onSuccess: () => qc.clear(),
   });
 }

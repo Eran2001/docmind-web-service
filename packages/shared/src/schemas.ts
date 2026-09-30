@@ -21,6 +21,27 @@ export const registerSchema = z.object({
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
 
+export const updateProfileSchema = z.object({
+  name: registerSchema.shape.name,
+  email: loginSchema.shape.email,
+});
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password"),
+    newPassword: z
+      .string()
+      .min(8, "Use at least 8 characters")
+      .max(128),
+    confirmPassword: z.string().min(1, "Confirm your new password"),
+  })
+  .refine((v) => v.newPassword === v.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords don't match",
+  });
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
 export const createCollectionSchema = z.object({
   name: z.string().trim().min(1, "Enter a name").max(60),
   description: z.string().trim().max(500).optional(),

@@ -11,6 +11,7 @@ export const routes = {
   evals: "/evals",
   evalSet: (setId: string) => `/evals/${setId}`,
   usage: "/usage",
+  settings: "/settings",
   adminUsage: "/admin/usage",
 } as const;
 

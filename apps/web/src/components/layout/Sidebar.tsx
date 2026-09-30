@@ -7,6 +7,7 @@ import {
   FlaskConical,
   Folder,
   LogOut,
+  Settings,
   Shield,
   X,
 } from "lucide-react";
@@ -38,6 +39,13 @@ const NAV = [
     label: "Usage",
     Icon: ChartLine,
     match: "/usage",
+    admin: false,
+  },
+  {
+    href: routes.settings,
+    label: "Settings",
+    Icon: Settings,
+    match: "/settings",
     admin: false,
   },
   {

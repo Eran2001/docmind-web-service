@@ -1,4 +1,10 @@
-import type { LoginInput, RegisterInput, User } from "@docmind/shared";
+import type {
+  ChangePasswordInput,
+  LoginInput,
+  RegisterInput,
+  UpdateProfileInput,
+  User,
+} from "@docmind/shared";
 
 import { api } from "@/lib/axios";
 
@@ -23,5 +29,17 @@ export const authService = {
   },
   async logout(): Promise<void> {
     await api.post("/auth/logout", null, { skipAuthRefresh: true });
+  },
+  async updateProfile(input: UpdateProfileInput): Promise<User> {
+    const { data } = await api.patch<{ user: User }>("/auth/me", input);
+    return data.user;
+  },
+  async changePassword(
+    input: Pick<ChangePasswordInput, "currentPassword" | "newPassword">,
+  ): Promise<void> {
+    await api.post("/auth/change-password", input);
+  },
+  async deleteAccount(): Promise<void> {
+    await api.delete("/auth/me");
   },
 };

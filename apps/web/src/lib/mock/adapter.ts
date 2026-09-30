@@ -15,8 +15,10 @@ import {
   createEvalQuestionSchema,
   createEvalSetSchema,
   feedbackSchema,
+  changePasswordSchema,
   loginSchema,
   registerSchema,
+  updateProfileSchema,
 } from "@docmind/shared";
 
 import {
@@ -288,6 +290,27 @@ route("GET", "/auth/me", () => {
   const db = getDb();
   db.user ??= userFor("maya.chen@acme.com");
   return { data: { user: db.user } };
+});
+
+route("PATCH", "/auth/me", ({ body }) => {
+  const input = validate(updateProfileSchema, body);
+  const db = getDb();
+  db.user = { ...(db.user ?? userFor(input.email)), ...input };
+  saveDb();
+  return { data: { user: db.user } };
+});
+route("POST", "/auth/change-password", ({ body }) => {
+  const input = validate(changePasswordSchema, body);
+  if (input.currentPassword === "wrong-password")
+    throw new MockHttpError(400, "INVALID_PASSWORD", "Current password is incorrect");
+  return { status: 204 };
+});
+route("DELETE", "/auth/me", () => {
+  const db = getDb();
+  db.user = null;
+  saveDb();
+  clearSession();
+  return { status: 204 };
 });
 
 // ---- collections ----
