@@ -6,6 +6,13 @@ import { Breadcrumbs, type Crumb } from "@/components/layout/Breadcrumbs";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui.store";
 
+/** Classes for a header action Button that collapses to a round icon on phones; wrap its text in <HeaderButtonLabel>. */
+export const HEADER_BUTTON = "flex-none max-sm:w-[34px] max-sm:px-0 max-sm:has-[>svg]:px-0";
+
+export function HeaderButtonLabel({ children }: { children: React.ReactNode }) {
+  return <span className="max-sm:hidden">{children}</span>;
+}
+
 interface PageHeaderProps {
   crumbs: Crumb[];
   actions?: React.ReactNode;

@@ -8,11 +8,7 @@ import type { DocumentDto } from "@/types";
 
 import { EmptyState } from "@/components/common/EmptyState";
 import { Bone, SkeletonLine } from "@/components/common/Skeletons";
-import {
-  PageContainer,
-  PageHeader,
-  PageTitle,
-} from "@/components/layout/PageHeader";
+import { PageContainer, PageHeader, PageTitle, HEADER_BUTTON, HeaderButtonLabel } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/configs/routes";
 import { getErrorMessage } from "@/lib/axios";
@@ -82,10 +78,10 @@ export function DocumentsView({ collectionId }: { collectionId: string }) {
           { label: name ?? "…" },
         ]}
         actions={
-          <Button asChild className="flex-none">
-            <Link href={routes.chat(collectionId)}>
+          <Button asChild className={HEADER_BUTTON}>
+            <Link href={routes.chat(collectionId)} aria-label="Open chat">
               <MessageSquare />
-              Open chat
+              <HeaderButtonLabel>Open chat</HeaderButtonLabel>
             </Link>
           </Button>
         }

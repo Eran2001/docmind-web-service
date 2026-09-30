@@ -6,11 +6,7 @@ import { FileText, Folder, FolderPlus, Plus, Search } from "lucide-react";
 
 import { CardGridSkeleton } from "@/components/common/Skeletons";
 import { EmptyState } from "@/components/common/EmptyState";
-import {
-  PageContainer,
-  PageHeader,
-  PageTitle,
-} from "@/components/layout/PageHeader";
+import { PageContainer, PageHeader, PageTitle, HEADER_BUTTON, HeaderButtonLabel } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/configs/routes";
 import { getErrorMessage } from "@/lib/axios";
@@ -32,9 +28,9 @@ export function CollectionsView() {
     (c) => !filter || c.name.toLowerCase().includes(filter),
   );
   const newButton = (
-    <Button onClick={() => setDialog(true)}>
+    <Button onClick={() => setDialog(true)} aria-label="New collection" className={HEADER_BUTTON}>
       <Plus />
-      New collection
+      <HeaderButtonLabel>New collection</HeaderButtonLabel>
     </Button>
   );
 
@@ -48,7 +44,7 @@ export function CollectionsView() {
             description="Group related documents so answers only draw from the right sources."
           />
           {!isPending && items.length > 0 && (
-            <label className="relative flex w-[min(260px,100%)]">
+            <label className="relative flex w-full sm:w-65">
               <Search className="absolute top-3 left-3.5 size-3.5 text-faint" />
               <input
                 value={q}

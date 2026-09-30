@@ -7,7 +7,7 @@ import type { UsageSummary } from "@/types";
 
 import { Bone } from "@/components/common/Skeletons";
 import { EmptyState } from "@/components/common/EmptyState";
-import { PageContainer, PageHeader, PageTitle } from "@/components/layout/PageHeader";
+import { PageContainer, PageHeader, PageTitle, HEADER_BUTTON, HeaderButtonLabel } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { USAGE_RANGES, type UsageRange } from "@/configs/constants";
 import { routes } from "@/configs/routes";
@@ -67,35 +67,35 @@ export function UsageView({ admin = false }: { admin?: boolean }) {
 
   const title = admin ? "Admin usage" : "Usage";
   const actions = (
-    <>
-      <div role="radiogroup" aria-label="Range" className="flex flex-none gap-0.5 rounded-full bg-secondary p-[3px]">
-        {USAGE_RANGES.map((n) => (
-          <button
-            key={n}
-            role="radio"
-            aria-checked={range === n}
-            onClick={() => setRange(n)}
-            className={cn(
-              "h-7 rounded-full px-3 text-[13px] font-medium",
-              range === n ? "bg-background text-foreground shadow-[0_1px_2px_rgba(0,0,0,.08)]" : "text-muted-foreground"
-            )}
-          >
-            {n}d
-          </button>
-        ))}
-      </div>
-      <Button variant="outline" onClick={exportCsv} disabled={!data} aria-label="Export CSV" className="flex-none">
-        <Download className="size-[15px]" />
-        <span className="hidden sm:inline">Export</span>
-      </Button>
-    </>
+    <Button variant="outline" onClick={exportCsv} disabled={!data} aria-label="Export CSV" className={HEADER_BUTTON}>
+      <Download className="size-[15px]" />
+      <HeaderButtonLabel>Export</HeaderButtonLabel>
+    </Button>
   );
 
   return (
     <div className="min-h-screen">
       <PageHeader crumbs={admin ? [{ label: "Admin" }, { label: "Usage" }] : [{ label: "Usage" }]} actions={actions} />
       <PageContainer>
-        <PageTitle title={title} description={admin ? `All users · ${RANGE_LONG[range]}` : `Your requests across all collections · ${RANGE_LONG[range]}`} />
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <PageTitle title={title} description={admin ? `All users · ${RANGE_LONG[range]}` : `Your requests across all collections · ${RANGE_LONG[range]}`} />
+          <div role="radiogroup" aria-label="Range" className="flex flex-none gap-0.5 rounded-full bg-secondary p-[3px]">
+            {USAGE_RANGES.map((n) => (
+              <button
+                key={n}
+                role="radio"
+                aria-checked={range === n}
+                onClick={() => setRange(n)}
+                className={cn(
+                  "h-7 rounded-full px-3 text-[13px] font-medium",
+                  range === n ? "bg-background text-foreground shadow-[0_1px_2px_rgba(0,0,0,.08)]" : "text-muted-foreground"
+                )}
+              >
+                {n}d
+              </button>
+            ))}
+          </div>
+        </div>
 
         {query.isError && (
           <div className="mt-7">

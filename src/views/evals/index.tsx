@@ -3,17 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, FlaskConical, Folder, Plus } from "lucide-react";
+import { ChevronRight, FlaskConical, Folder, Plus, Search } from "lucide-react";
 
 import { EmptyState } from "@/components/common/EmptyState";
 import { DataGrid, type DataGridColumn } from "@/components/common/DataGrid";
 import { SkeletonLine } from "@/components/common/Skeletons";
 import { TruncatedText } from "@/components/common/TruncatedText";
-import {
-  PageContainer,
-  PageHeader,
-  PageTitle,
-} from "@/components/layout/PageHeader";
+import { PageContainer, PageHeader, PageTitle, HEADER_BUTTON, HeaderButtonLabel } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/configs/routes";
 import { getErrorMessage } from "@/lib/axios";
@@ -120,12 +116,19 @@ export function EvalsView() {
   const router = useRouter();
   const { data, isPending, isError, error, refetch } = useEvalSets();
   const [dialog, setDialog] = useState(false);
-  const sets = data ?? [];
+  const [q, setQ] = useState("");
+  const all = data ?? [];
+  const filter = q.trim().toLowerCase();
+  const sets = all.filter(
+    (s) =>
+      !filter ||
+      [s.name, s.description ?? "", s.collectionName].some((t) => t.toLowerCase().includes(filter)),
+  );
 
   const newButton = (
-    <Button onClick={() => setDialog(true)}>
+    <Button onClick={() => setDialog(true)} aria-label="New eval set" className={HEADER_BUTTON}>
       <Plus />
-      New eval set
+      <HeaderButtonLabel>New eval set</HeaderButtonLabel>
     </Button>
   );
 
@@ -133,11 +136,25 @@ export function EvalsView() {
     <div className="min-h-screen">
       <PageHeader crumbs={[{ label: "Evals" }]} actions={newButton} />
       <PageContainer>
-        <PageTitle
-          title="Evals"
-          description="Test questions with known answers. Run them after changing documents or retrieval settings to catch regressions."
-        />
-        <div className="mt-6">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <PageTitle
+            title="Evals"
+            description="Test questions with known answers. Run them after changing documents or retrieval settings to catch regressions."
+          />
+          {!isPending && all.length > 0 && (
+            <label className="relative flex w-full sm:w-65">
+              <Search className="absolute top-3 left-3.5 size-3.5 text-faint" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Filter eval sets"
+                aria-label="Filter eval sets"
+                className="h-9.5 min-w-0 flex-1 rounded-full border border-transparent bg-secondary pr-3.5 pl-9 text-sm outline-none focus:border-ring focus:bg-background focus:ring-[3px] focus:ring-ring/15"
+              />
+            </label>
+          )}
+        </div>
+        <div>
           {isError && (
             <EmptyState
               icon={FlaskConical}
@@ -147,7 +164,7 @@ export function EvalsView() {
             />
           )}
 
-          {!isPending && !isError && sets.length === 0 && (
+          {!isPending && !isError && all.length === 0 && (
             <EmptyState
               icon={FlaskConical}
               title="No eval sets yet"
@@ -161,7 +178,7 @@ export function EvalsView() {
             />
           )}
 
-          {(isPending || sets.length > 0) && (
+          {(isPending || all.length > 0) && (
             <DataGrid
               columns={columns}
               rows={sets}
@@ -170,6 +187,11 @@ export function EvalsView() {
               skeletonCount={5}
               onRowClick={(s) => router.push(routes.evalSet(s.id))}
               tableClassName="min-w-190"
+              empty={
+                <div className="py-12 text-center text-muted-foreground">
+                  No eval sets match “{q}”.
+                </div>
+              }
             />
           )}
         </div>

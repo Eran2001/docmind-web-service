@@ -9,11 +9,7 @@ import type { EvalRun } from "@/types";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Bone, SkeletonLine } from "@/components/common/Skeletons";
 import { Spinner } from "@/components/common/Spinner";
-import {
-  PageContainer,
-  PageHeader,
-  PageTitle,
-} from "@/components/layout/PageHeader";
+import { PageContainer, PageHeader, PageTitle, HEADER_BUTTON, HeaderButtonLabel } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/configs/routes";
 import { getErrorMessage } from "@/lib/axios";
@@ -138,10 +134,13 @@ export function EvalDetailView({ setId }: { setId: string }) {
           <Button
             onClick={onRun}
             disabled={running || !data}
-            className="flex-none"
+            aria-label={runLabel}
+            className={HEADER_BUTTON}
           >
             {running ? <Spinner /> : <Play className="size-3.5" />}
-            <span className="tabular-nums">{runLabel}</span>
+            <HeaderButtonLabel>
+              <span className="tabular-nums">{runLabel}</span>
+            </HeaderButtonLabel>
           </Button>
         }
       />
