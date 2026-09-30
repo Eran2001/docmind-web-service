@@ -142,7 +142,7 @@ export function summarizeSet(setId: string): EvalSetSummary | null {
     description: set.description,
     collectionId: set.collectionId,
     collectionName:
-      db.collections.find((c) => c.id === set.collectionId)?.name ??
+      db.collections.find((c) => c.resourceId === set.collectionId)?.name ??
       "Unknown collection",
     questionCount: setQuestions(setId).length,
     lastRun:

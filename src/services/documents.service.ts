@@ -2,42 +2,31 @@ import type { ChunkDetail, DocumentDto } from "@/types";
 
 import { privateApi } from "@/lib/api/private.api";
 
+// Writes answer `{ result: true }` (an upload/URL also returns the new id as `resourceId`), never the record: the mutation hooks
+// invalidate the list, which refetches and shows the document with its real status.
 export const documentsService = {
   async list(collectionId: string): Promise<DocumentDto[]> {
-    const { data } = await privateApi.get<{ items: DocumentDto[] }>(
-      `/collections/${collectionId}/documents`,
-    );
-    return data.items;
+    const { data } = await privateApi.get<{ result: DocumentDto[] }>(`/collections/${collectionId}/documents`);
+    return data.result;
   },
-  async upload(collectionId: string, file: File): Promise<DocumentDto> {
+  /** multipart/form-data with one `file` field (one request per file). */
+  async upload(collectionId: string, file: File): Promise<void> {
     const form = new FormData();
     form.append("file", file);
-    const { data } = await privateApi.post<DocumentDto>(
-      `/collections/${collectionId}/documents`,
-      form,
-    );
-    return data;
+    await privateApi.post(`/collections/${collectionId}/documents`, form);
   },
-  async addUrl(collectionId: string, url: string): Promise<DocumentDto> {
-    const { data } = await privateApi.post<DocumentDto>(
-      `/collections/${collectionId}/documents/url`,
-      { url },
-    );
-    return data;
+  async addUrl(collectionId: string, url: string): Promise<void> {
+    await privateApi.post(`/collections/${collectionId}/documents/url`, { url });
   },
-  async reprocess(documentId: string): Promise<DocumentDto> {
-    const { data } = await privateApi.post<DocumentDto>(
-      `/documents/${documentId}/reprocess`,
-    );
-    return data;
+  async reprocess(documentId: string): Promise<void> {
+    await privateApi.post(`/documents/${documentId}/reprocess`);
   },
   async remove(documentId: string): Promise<void> {
     await privateApi.delete(`/documents/${documentId}`);
   },
+  // Still answered by the mock until chat is real.
   async getChunk(documentId: string, chunkId: string): Promise<ChunkDetail> {
-    const { data } = await privateApi.get<ChunkDetail>(
-      `/documents/${documentId}/chunks/${chunkId}`,
-    );
+    const { data } = await privateApi.get<ChunkDetail>(`/documents/${documentId}/chunks/${chunkId}`);
     return data;
   },
 };

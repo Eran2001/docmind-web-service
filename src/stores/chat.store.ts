@@ -25,6 +25,8 @@ interface ChatState {
   markStopped: (messageId: string, tokens: number) => void;
   clear: () => void;
   stop: () => void;
+  /** Sign-out: abort anything in flight and forget it all. */
+  reset: () => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -60,4 +62,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set((st) => ({ stopped: { ...st.stopped, [messageId]: tokens } })),
   clear: () => set({ streaming: null }),
   stop: () => get().streaming?.controller.abort(),
+  reset: () => {
+    get().streaming?.controller.abort();
+    set({ streaming: null, stopped: {} });
+  },
 }));

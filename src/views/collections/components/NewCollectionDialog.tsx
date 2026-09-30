@@ -38,9 +38,9 @@ export function NewCollectionDialog({ open, onOpenChange }: Props) {
 
   const onSubmit = form.handleSubmit((values) => {
     create.mutate(values, {
-      onSuccess: (c) => {
+      onSuccess: () => {
         toast.success("Collection created", {
-          description: `“${c.name}” is ready for documents.`,
+          description: `“${values.name.trim()}” is ready for documents.`,
         });
         form.reset();
         onOpenChange(false);

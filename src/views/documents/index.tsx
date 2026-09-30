@@ -36,7 +36,7 @@ export function DocumentsView({ collectionId }: { collectionId: string }) {
   const name = collection.data?.name;
   const docs = documents.data ?? [];
 
-  if (collection.isSuccess && !collection.data) {
+  if ((collection.isSuccess && !collection.data) || collection.isError) {
     return (
       <div className="min-h-screen">
         <PageHeader
@@ -48,8 +48,10 @@ export function DocumentsView({ collectionId }: { collectionId: string }) {
         <PageContainer>
           <EmptyState
             icon={FolderX}
-            title="Collection not found"
-            description="It may have been deleted, or you don't have access to it."
+            title={collection.isError ? "Couldn't load this collection" : "Collection not found"}
+            description={
+              collection.isError ? getErrorMessage(collection.error) : "It may have been deleted, or you don't have access to it."
+            }
             action={
               <Button asChild size="lg">
                 <Link href={routes.collections}>Back to collections</Link>
@@ -151,7 +153,7 @@ export function DocumentsView({ collectionId }: { collectionId: string }) {
             expectedCount={collection.data?.documentCount}
             onBrowse={() => fileInput.current?.click()}
             onReprocess={(d) =>
-              reprocess.mutate(d.id, {
+              reprocess.mutate(d.resourceId, {
                 onSuccess: () =>
                   toast.info("Reprocessing", {
                     description: `${d.title} was added to the processing queue.`,
@@ -164,7 +166,7 @@ export function DocumentsView({ collectionId }: { collectionId: string }) {
             }
             onDelete={(d) =>
               remove
-                .mutateAsync(d.id)
+                .mutateAsync(d.resourceId)
                 .then(() =>
                   toast.success("Document deleted", {
                     description: `${d.title} and its ${d.chunkCount} chunks were removed.`,

@@ -4,7 +4,7 @@ export const queryKeys = {
   },
   collections: {
     all: ["collections"] as const,
-    list: () => ["collections", "list"] as const,
+    list: (search = "") => ["collections", "list", search] as const,
     detail: (id: string) => ["collections", "detail", id] as const,
   },
   documents: {

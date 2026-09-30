@@ -120,7 +120,7 @@ function AddQuestionForm({
                   {documents.data
                     ?.filter((d) => d.status === "ready")
                     .map((d) => (
-                      <SelectItem key={d.id} value={d.id}>
+                      <SelectItem key={d.resourceId} value={d.resourceId}>
                         {d.title}
                       </SelectItem>
                     ))}

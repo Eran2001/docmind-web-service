@@ -3,7 +3,7 @@
 export type UserRole = "user" | "admin";
 
 export interface User {
-  id: string;
+  resourceId: string;
   email: string;
   name: string;
   role: UserRole;
@@ -21,7 +21,7 @@ export interface AuthSession {
 }
 
 export interface Collection {
-  id: string;
+  resourceId: string;
   name: string;
   description: string | null;
   documentCount: number;
@@ -33,7 +33,7 @@ export type DocumentStatus = "queued" | "processing" | "ready" | "failed";
 export type DocumentSourceType = "file" | "url";
 
 export interface DocumentDto {
-  id: string;
+  resourceId: string;
   collectionId: string;
   sourceType: DocumentSourceType;
   title: string;

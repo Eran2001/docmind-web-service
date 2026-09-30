@@ -46,7 +46,7 @@ export function NewEvalSetDialog({ open, onOpenChange, onCreated }: Props) {
     defaultValues: { name: "", collectionId: "", description: "" },
   });
 
-  const firstCollection = collections.data?.[0]?.id;
+  const firstCollection = collections.data?.[0]?.resourceId;
   useEffect(() => {
     if (firstCollection && !form.getValues("collectionId"))
       form.setValue("collectionId", firstCollection);
@@ -111,7 +111,7 @@ export function NewEvalSetDialog({ open, onOpenChange, onCreated }: Props) {
                   </SelectTrigger>
                   <SelectContent>
                     {collections.data?.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
+                      <SelectItem key={c.resourceId} value={c.resourceId}>
                         {c.name}
                       </SelectItem>
                     ))}

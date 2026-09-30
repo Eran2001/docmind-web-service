@@ -93,7 +93,7 @@ web or the data layer.
 |---|---|
 | `/` | Landing page with a live-looking demo of a cited answer |
 | `/login`, `/register` | Sign in / create an account |
-| `/collections` | Your collections (folders of documents), with search |
+| `/collections` | Your collections (folders of documents), with search and a ⋯ menu to delete |
 | `/collections/:id` | Documents in a collection: drag-and-drop upload, add a URL, processing status |
 | `/collections/:id/chat` | Chat: conversation list, streaming answers, citation panel |
 | `/evals`, `/evals/:id` | Test sets, run history, per-question results with the judge's reasoning |
@@ -109,8 +109,9 @@ Works from phone to desktop, in light and dark mode.
 | All screens and interactions | Built (see above) |
 | Register, login, sign out, silent session refresh | **Real**: talks to the API, accounts stored in Postgres, argon2id-hashed passwords |
 | Settings: edit profile, change password, delete account | **Real** |
-| Collections, documents, upload | Mock; API next |
-| Ingestion (parse, chunk, embed) | Needs the AI service (not built yet) |
+| Collections: create, list, search, delete | **Real** (search is done by the API: `GET /collections?search=`) |
+| Documents: upload (drag and drop), add URL, list, delete, reprocess | **Real** (files are saved by the API and queued) |
+| Ingestion (status moving from Queued to Ready) | Needs the worker and the AI service; documents stay **Queued** for now |
 | Chat, citations, streaming | Mock stream in the UI; real one needs API + AI service |
 | Feedback, usage, evals | Mock; API next |
 | Tests | Not yet for the web app (the API has its own test suite) |
@@ -148,7 +149,7 @@ Then open the app and register an account. Configuration is in `.env` (see `.env
 Notes:
 - New accounts have role `user`. To see the Admin pages: `UPDATE users SET role = 'admin' WHERE email = '...'` in the API's database.
 - The landing page's "Try the demo" needs a `demo@docmind.dev` account, which the API's seed script will create later.
-- Mock data is kept in `localStorage`; clear the `docmind.mock.v2` key to reset it.
+- Mock data is kept in `localStorage`; clear the `docmind.mock.v3` key to reset it.
 
 ## How the code is organised
 

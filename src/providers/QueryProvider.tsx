@@ -4,6 +4,7 @@ import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
+import { QUERY_STALE_TIME_MS } from "@/configs/constants";
 import { env } from "@/configs/env";
 import { ApiError } from "@/lib/api/errors";
 
@@ -11,7 +12,7 @@ function makeClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 30_000,
+        staleTime: QUERY_STALE_TIME_MS,
         refetchOnWindowFocus: false,
         // Client errors won't fix themselves on retry.
         retry: (failures, error) =>

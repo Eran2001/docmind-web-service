@@ -101,7 +101,7 @@ function titleCase(handle: string): string {
 function userFor(email: string, name?: string): User {
   // Every mock user is an admin so all screens are reachable during UI work.
   return {
-    id: "user-1",
+    resourceId: "user-1",
     email,
     name: name ?? (titleCase(email.split("@")[0] ?? "") || "DocMind User"),
     role: "admin",
@@ -110,25 +110,33 @@ function userFor(email: string, name?: string): User {
 
 function collectionView(c: Collection): Collection {
   const documentCount = getDb().documents.filter(
-    (d) => d.collectionId === c.id,
+    (d) => d.collectionId === c.resourceId,
   ).length;
   return { ...c, documentCount };
 }
 
+// Collections are real now (they live in Postgres), but documents and chats are still mocked. A real collection id is not in the
+// mock database, so give it an empty stand-in; the documents/chat mock routes then work for it until those endpoints are real too.
 function findCollection(id: string): Collection {
-  const c = getDb().collections.find((x) => x.id === id);
-  if (!c) throw notFound("Collection");
+  const db = getDb();
+  let c = db.collections.find((x) => x.resourceId === id);
+  if (!c) {
+    const now = new Date().toISOString();
+    c = { resourceId: id, name: "Collection", description: null, documentCount: 0, createdAt: now, updatedAt: now };
+    db.collections.push(c);
+    saveDb();
+  }
   return c;
 }
 
 function findDocument(id: string): MockDocument {
-  const d = getDb().documents.find((x) => x.id === id);
+  const d = getDb().documents.find((x) => x.resourceId === id);
   if (!d) throw notFound("Document");
   return d;
 }
 
 function touch(collectionId: string) {
-  const c = getDb().collections.find((x) => x.id === collectionId);
+  const c = getDb().collections.find((x) => x.resourceId === collectionId);
   if (c) c.updatedAt = new Date().toISOString();
 }
 
@@ -149,7 +157,7 @@ function newDocument(
 ): MockDocument {
   const at = new Date().toISOString();
   return {
-    id: uid("doc"),
+    resourceId: uid("doc"),
     collectionId,
     originalFilename: null,
     sourceUrl: null,
@@ -310,7 +318,7 @@ route("POST", "/collections", ({ body }) => {
   const input = validate(createCollectionSchema, body);
   const now = new Date().toISOString();
   const c: Collection = {
-    id: uid("col"),
+    resourceId: uid("col"),
     name: input.name,
     description: input.description || null,
     documentCount: 0,
@@ -333,8 +341,8 @@ route("PATCH", "/collections/:id", ({ params, body }) => {
 });
 route("DELETE", "/collections/:id", ({ params }) => {
   const db = getDb();
-  const id = findCollection(params[0] as string).id;
-  db.collections = db.collections.filter((c) => c.id !== id);
+  const id = findCollection(params[0] as string).resourceId;
+  db.collections = db.collections.filter((c) => c.resourceId !== id);
   db.documents = db.documents.filter((d) => d.collectionId !== id);
   saveDb();
   return { status: 204 };
@@ -342,7 +350,7 @@ route("DELETE", "/collections/:id", ({ params }) => {
 
 // ---- documents ----
 route("GET", "/collections/:id/documents", ({ params }) => {
-  const id = findCollection(params[0] as string).id;
+  const id = findCollection(params[0] as string).resourceId;
   const items = getDb()
     .documents.filter((d) => d.collectionId === id)
     .map((d) => resolveDocument(d))
@@ -372,7 +380,7 @@ route("POST", "/collections/:id/documents", ({ params, body }) => {
       "VALIDATION_ERROR",
       `${file.name} is larger than 20 MB.`,
     );
-  if (db.documents.filter((d) => d.collectionId === collection.id).length >= 50)
+  if (db.documents.filter((d) => d.collectionId === collection.resourceId).length >= 50)
     throw new MockHttpError(
       422,
       "LIMIT_REACHED",
@@ -381,7 +389,7 @@ route("POST", "/collections/:id/documents", ({ params, body }) => {
   const hash = `${file.name}:${file.size}`;
   if (
     db.documents.some(
-      (d) => d.collectionId === collection.id && d.contentHash === hash,
+      (d) => d.collectionId === collection.resourceId && d.contentHash === hash,
     )
   ) {
     throw new MockHttpError(
@@ -392,7 +400,7 @@ route("POST", "/collections/:id/documents", ({ params, body }) => {
   }
   const pages = Math.max(1, Math.round(file.size / 40_000));
   const paged = ext === "pdf" || ext === "docx";
-  const doc = newDocument(collection.id, {
+  const doc = newDocument(collection.resourceId, {
     title: file.name,
     sourceType: "file",
     originalFilename: file.name,
@@ -407,7 +415,7 @@ route("POST", "/collections/:id/documents", ({ params, body }) => {
     errorMessage: null,
   });
   db.documents.push(doc);
-  touch(collection.id);
+  touch(collection.resourceId);
   saveDb();
   return { status: 202, data: resolveDocument(doc) };
 });
@@ -424,7 +432,7 @@ route("POST", "/collections/:id/documents/url", ({ params, body }) => {
   const db = getDb();
   if (
     db.documents.some(
-      (d) => d.collectionId === collection.id && d.contentHash === url,
+      (d) => d.collectionId === collection.resourceId && d.contentHash === url,
     )
   ) {
     throw new MockHttpError(
@@ -433,7 +441,7 @@ route("POST", "/collections/:id/documents/url", ({ params, body }) => {
       "This URL is already in the collection.",
     );
   }
-  const doc = newDocument(collection.id, {
+  const doc = newDocument(collection.resourceId, {
     title: url.replace(/^https?:\/\//i, ""),
     sourceType: "url",
     sourceUrl: url,
@@ -447,7 +455,7 @@ route("POST", "/collections/:id/documents/url", ({ params, body }) => {
     errorMessage: null,
   });
   db.documents.push(doc);
-  touch(collection.id);
+  touch(collection.resourceId);
   saveDb();
   return { status: 202, data: resolveDocument(doc) };
 });
@@ -476,7 +484,7 @@ route("POST", "/documents/:id/reprocess", ({ params }) => {
 route("DELETE", "/documents/:id", ({ params }) => {
   const doc = findDocument(params[0] as string);
   const db = getDb();
-  db.documents = db.documents.filter((d) => d.id !== doc.id);
+  db.documents = db.documents.filter((d) => d.resourceId !== doc.resourceId);
   touch(doc.collectionId);
   saveDb();
   return { status: 204 };
@@ -487,14 +495,14 @@ route("GET", "/documents/:id/chunks/:chunkId", ({ params }) => ({
 
 // ---- conversations & messages ----
 route("GET", "/collections/:id/conversations", ({ params }) => {
-  const id = findCollection(params[0] as string).id;
+  const id = findCollection(params[0] as string).resourceId;
   const items = getDb()
     .conversations.filter((c) => c.collectionId === id)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   return { data: { items, nextCursor: null } };
 });
 route("POST", "/collections/:id/conversations", ({ params }) => {
-  const id = findCollection(params[0] as string).id;
+  const id = findCollection(params[0] as string).resourceId;
   const now = new Date().toISOString();
   const conv = {
     id: uid("conv"),
@@ -596,7 +604,7 @@ route("POST", "/evals/sets/:id/questions", ({ params, body }) => {
     expectedAnswer: input.expectedAnswer,
     expectedDocumentId: input.expectedDocumentId ?? null,
     expectedDocumentTitle: input.expectedDocumentId
-      ? (db.documents.find((d) => d.id === input.expectedDocumentId)?.title ??
+      ? (db.documents.find((d) => d.resourceId === input.expectedDocumentId)?.title ??
         null)
       : null,
   };

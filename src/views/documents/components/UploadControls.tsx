@@ -17,10 +17,11 @@ import { useAddUrl, useUploadDocument } from "@/queries/documents.queries";
 import { addUrlSchema } from "@/schemas/collection.schema";
 import { formatBytes } from "@/utils/format-bytes";
 
+// Titles for the API's error codes; anything else falls back to a generic title and shows the API's message.
 const ERROR_TITLES: Record<string, string> = {
-  DUPLICATE_DOCUMENT: "Already in this collection",
-  LIMIT_REACHED: "Collection is full",
-  URL_FETCH_FAILED: "Couldn't fetch URL",
+  DuplicateDocument: "Already in this collection",
+  LimitReached: "Collection is full",
+  ServiceUnavailable: "Try again in a moment",
 };
 
 export function useUploadHandlers(collectionId: string) {

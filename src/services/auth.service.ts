@@ -4,6 +4,7 @@ import type { AuthSession, User } from "@/types";
 import { privateApi } from "@/lib/api/private.api";
 import { publicApi } from "@/lib/api/public.api";
 import { clearSession, setAccessToken } from "@/lib/api/session";
+import { clearUserData } from "@/lib/api/user-data";
 
 // Register and login answer with `data: { accessToken, tokenType, expiresIn, user }`. The token is kept here (in a cookie the
 // route guard can read) so every caller gets it stored; the user goes back to the caller for the query cache.
@@ -32,6 +33,7 @@ export const authService = {
       await publicApi.post("/auth/logout");
     } finally {
       clearSession();
+      clearUserData();
     }
   },
   async updateProfile(input: UpdateProfileInput): Promise<User> {
@@ -44,5 +46,6 @@ export const authService = {
   async deleteAccount(): Promise<void> {
     await privateApi.delete("/auth/me");
     clearSession();
+    clearUserData();
   },
 };

@@ -84,8 +84,8 @@ function buildAnswer(collectionId: string, question: string): BuiltAnswer {
       ? [
           {
             marker: 1,
-            chunkId: `gen-${source.id}`,
-            documentId: source.id,
+            chunkId: `gen-${source.resourceId}`,
+            documentId: source.resourceId,
             documentTitle: source.title,
             pageNumber: source.pageCount ? 1 : null,
             snippet: "Mock passage generated for the demo.",

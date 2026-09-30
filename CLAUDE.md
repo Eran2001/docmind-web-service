@@ -7,6 +7,8 @@ Single Next.js project (no monorepo). Everything lives under `src/`. Source of t
 - Do not change the stack below. No swapping libraries.
 - TypeScript strict. No `any`.
 - The browser only talks to the API (`NEXT_PUBLIC_API_URL`). Never call the AI service from the web.
+- Entities identify themselves as `resourceId` (never `id`) in types and code for everything the real API returns (`User`, `Collection`, `DocumentDto`); the mock-only types (chats, messages, evals) still use `id` until their endpoints are real, and are born as `resourceId` then.
+- Writes (create/update/delete) answer `data: { result: true }` and do NOT return the record (a create puts the new id in `resourceId`): services return void and the mutation hooks invalidate the list query so it refetches. Use the form values in toasts.
 - API response shape (real API; differs from spec 8.1): success `{ code: "OK", data, message, resourceId, requestId }`, lists as `data.result`;
   failure `{ code: "NotFound" | "ApiRouteFailed" | ..., error: { status, details? }, debug?, message, resourceId, requestId }`. `message` is OUTSIDE `error`.
   The mock (`lib/mock`) still returns bare resources and the old error shape; when switching to the real API, adapt once in `lib/axios.ts` (`normalizeError`: read `code`, `message`,
@@ -44,7 +46,12 @@ sonner (toasts) · next-themes · react-markdown · recharts · npm
   the cookie lives 7 days but the JWT inside only ~15 min) and `useMe` (GET `/auth/me`, only when a session exists) confirms it and loads the user. The refresh token is an httpOnly cookie set by the API; JavaScript never reads it.
 - Silent refresh (`lib/api/refresh.ts`): `private.api.ts` renews an expired JWT before a request and, on a 401, refreshes once and repeats the request. ONE refresh at a time (each refresh token works once); if another tab already refreshed, its token is reused.
   If the API refuses the refresh (expired/revoked), `endSession()` clears the cookie and goes to `/login?next=...` (only from protected pages; public pages stay put). `proxy.ts` does NOT check JWT expiry, on purpose: it can't see the refresh cookie.
+- Ending a session (sign out, delete account, refresh refused) clears everything user-specific: the token cookie, the TanStack cache, chat/citation state and the mock database in localStorage (`lib/api/user-data.ts` → `clearUserData`).
+  Anything new that stores per-user data client-side (a Zustand store, localStorage) must be added there. Theme and sidebar preferences are not user data and stay.
 - A 401 means "session over" to the web app, so the API must never use 401 for anything else (a wrong current password is a 400 field error).
+- Documents are real too (`services/documents.service.ts`: one multipart POST per file, a POST for URLs; write calls return void and the hooks invalidate the list; polling every 3 s while anything is `queued`/`processing`). A single collection comes from `GET /collections/:id` (`useCollection`).
+- Collections are real (`services/collections.service.ts`: lists come back as `data.result`; search is `?search=`, debounced 300 ms, previous results stay visible while it loads).
+  The mock still answers chat routes; its `findCollection` gives unknown (real) collection ids an empty stand-in so the chat screen keeps working until it is real too.
 - While `NEXT_PUBLIC_USE_MOCKS=true`, only the calls listed in `lib/api/real-routes.ts` go to the real API; add a line there as each endpoint is built. Everything else is answered by `lib/mock`.
 - Chat stream: `fetch` + `ReadableStream` in `lib/sse.ts` (POST, so not EventSource; Axios can't stream). Same credentials + refresh logic. Event types from `src/types/sse-events.ts`.
 - Polling: document list every 3s ONLY while a doc is queued/processing (`refetchInterval` as a function); poll eval runs while queued/running.
@@ -62,7 +69,7 @@ sonner (toasts) · next-themes · react-markdown · recharts · npm
 
 ## Commands
 `npm run dev` (http://localhost:3000) · `npm run typecheck && npm run lint && npm run build`
-Mock API (`NEXT_PUBLIC_USE_MOCKS=true`, default) lives in `lib/mock`; state is in localStorage key `docmind.mock.v2`.
+Mock API (`NEXT_PUBLIC_USE_MOCKS=true`, default) lives in `lib/mock`; state is in localStorage key `docmind.mock.v3`.
 
 ## Deploy note
 The access-token cookie is set by the web app itself, so `proxy.ts` sees it. The API's httpOnly refresh cookie is only sent to the API (path `/api/v1/auth`), so web and API must share a site (same parent domain, e.g. `app.` + `api.`; `localhost` on different ports counts).

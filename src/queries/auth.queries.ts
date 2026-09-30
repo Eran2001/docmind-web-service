@@ -12,7 +12,6 @@ export function useMe() {
     queryFn: authService.me,
     // No stored session (signed out, or the account was just deleted) means there is nothing to ask the API about.
     enabled: hasStoredSession(),
-    staleTime: 5 * 60_000,
     retry: false,
   });
 }

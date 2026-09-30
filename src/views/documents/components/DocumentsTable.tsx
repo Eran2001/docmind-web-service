@@ -152,7 +152,7 @@ export function DocumentsTable({
       <DataGrid
         columns={columns}
         rows={docs}
-        rowKey={(d) => d.id}
+        rowKey={(d) => d.resourceId}
         loading={loading}
         skeletonCount={expectedCount || TITLE_WIDTHS.length}
         tableClassName="min-w-[820px]"

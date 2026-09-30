@@ -1,6 +1,7 @@
 import { ACCESS_COOKIE, SESSION_MAX_AGE_SECONDS } from "@/configs/constants";
 import { isProtectedPath, routes } from "@/configs/routes";
 import { isExpired } from "@/lib/api/jwt";
+import { clearUserData } from "@/lib/api/user-data";
 
 // The access token lives in a cookie (readable by JavaScript and by the Next proxy, which needs it to guard routes).
 // The JWT inside is short-lived (~15 min); the long-lived refresh token is an httpOnly cookie set by the API, which
@@ -35,6 +36,7 @@ export function clearSession(): void {
 /** The session is over (refresh refused, token invalid): forget it and go to /login, remembering where the user was. */
 export function endSession(): void {
   clearSession();
+  clearUserData();
   if (typeof window === "undefined") return;
   const { pathname, search } = window.location;
   // Public pages (landing, login, register) stay where they are; only pages that need a user send you to /login.

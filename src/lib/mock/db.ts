@@ -7,8 +7,10 @@ import {
   HANDBOOK_COLLECTION_ID,
   SEED_THREADS,
 } from "@/lib/mock/answers";
+import { MOCK_DB_STORAGE_KEY } from "@/configs/constants";
+import { hasStoredSession } from "@/lib/api/session";
 
-const STORAGE_KEY = "docmind.mock.v2";
+const STORAGE_KEY = MOCK_DB_STORAGE_KEY;
 const MIN = 60_000;
 const HOUR = 60 * MIN;
 const DAY = 24 * HOUR;
@@ -114,7 +116,7 @@ function doc(
   const isUrl = type === "url";
   const at = iso(agoMs);
   return {
-    id,
+    resourceId: id,
     collectionId,
     sourceType: isUrl ? "url" : "file",
     title,
@@ -338,7 +340,7 @@ function seedCollections(): Collection[] {
     description: string,
     agoMs: number,
   ): Collection => ({
-    id,
+    resourceId: id,
     name,
     description,
     documentCount: 0,
@@ -810,6 +812,9 @@ export function getDb(): MockDb {
 
 export function saveDb() {
   if (typeof window === "undefined" || !cache) return;
+  // Mock data belongs to a signed-in user. Without a session (just signed out, or the session was ended while a mock
+  // request was still in flight) nothing may be written back, or the wipe in clearUserData would be undone.
+  if (!hasStoredSession()) return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
   } catch {
@@ -840,5 +845,5 @@ export function resolveDocument(
 }
 
 export function getUserId(): string {
-  return getDb().user?.id ?? "user-1";
+  return getDb().user?.resourceId ?? "user-1";
 }
