@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { useDocuments } from "@/queries/documents.queries";
 import {
   useAddEvalQuestion,

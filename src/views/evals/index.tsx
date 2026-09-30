@@ -12,7 +12,7 @@ import { TruncatedText } from "@/components/common/TruncatedText";
 import { PageContainer, PageHeader, PageTitle, HEADER_BUTTON, HeaderButtonLabel } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/configs/routes";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { useEvalSets } from "@/queries/evals.queries";
 import { formatRelative } from "@/utils/format-date";

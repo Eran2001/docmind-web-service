@@ -8,7 +8,7 @@ import {
   pickAnswerKey,
 } from "@/lib/mock/answers";
 import { docTitle, getDb, resolveDocument, saveDb, uid } from "@/lib/mock/db";
-import { ApiError } from "@/lib/axios";
+import { ApiError } from "@/lib/api/errors";
 import type { StreamChatArgs } from "@/lib/sse";
 
 const SEARCH_MS = 1300;

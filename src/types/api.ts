@@ -7,6 +7,17 @@ export interface User {
   email: string;
   name: string;
   role: UserRole;
+  /** ISO date; only present on users that come from the real API. */
+  createdAt?: string;
+}
+
+/** `data` of a successful register / login (the API also sets the httpOnly refresh cookie). */
+export interface AuthSession {
+  accessToken: string;
+  tokenType: "Bearer";
+  /** Seconds until the access token expires. */
+  expiresIn: number;
+  user: User;
 }
 
 export interface Collection {
@@ -214,20 +225,35 @@ export interface EvalSetDetail extends EvalSetSummary {
   runs: EvalRun[];
 }
 
-export type ApiErrorCode =
-  | "VALIDATION_ERROR"
-  | "UNAUTHORIZED"
-  | "NOT_FOUND"
-  | "DUPLICATE_DOCUMENT"
-  | "LIMIT_REACHED"
-  | "RATE_LIMITED"
-  | "AI_SERVICE_ERROR"
-  | "INTERNAL_ERROR";
+/** Every success response from the real API. The axios instances unwrap it, so callers only see `data`. */
+export interface ApiEnvelope<T> {
+  code: string; // "OK" for every success
+  data: T;
+  message: string;
+  resourceId: string | null;
+  requestId: string;
+}
 
+/** Codes the real API returns on failure (see docmind-api-service/src/common/errors/error-codes.ts). */
+export type ApiErrorCode =
+  | "ValidationFailed"
+  | "Unauthorized"
+  | "NotFound"
+  | "ApiRouteFailed"
+  | "DuplicateDocument"
+  | "EmailAlreadyRegistered"
+  | "LimitReached"
+  | "RateLimited"
+  | "InternalError"
+  | "AiServiceFailed"
+  | "ServiceUnavailable";
+
+/** Real API failure: no `data`; `message` is outside `error`; `debug` only outside production. */
 export interface ApiErrorBody {
-  error: {
-    code: ApiErrorCode | (string & {});
-    message: string;
-    details?: unknown;
-  };
+  code: ApiErrorCode | (string & {});
+  error: { status: number; details?: unknown };
+  debug?: unknown;
+  message: string;
+  resourceId: string | null;
+  requestId: string;
 }

@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { useCollections } from "@/queries/collections.queries";
 import { useCreateEvalSet } from "@/queries/evals.queries";
 import {

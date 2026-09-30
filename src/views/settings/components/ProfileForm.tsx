@@ -10,7 +10,7 @@ import { Spinner } from "@/components/common/Spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { useUpdateProfile } from "@/queries/auth.queries";
 import {
   updateProfileSchema,

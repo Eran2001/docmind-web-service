@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { useCreateCollection } from "@/queries/collections.queries";
 import {
   createCollectionSchema,

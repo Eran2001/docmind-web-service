@@ -1,16 +1,16 @@
 import type { AdminUsageSummary, UsageSummary } from "@/types";
 
-import { api } from "@/lib/axios";
+import { privateApi } from "@/lib/api/private.api";
 
 export const usageService = {
   async me(days: number): Promise<UsageSummary> {
-    const { data } = await api.get<UsageSummary>("/usage/me", {
+    const { data } = await privateApi.get<UsageSummary>("/usage/me", {
       params: { days },
     });
     return data;
   },
   async admin(days: number): Promise<AdminUsageSummary> {
-    const { data } = await api.get<AdminUsageSummary>("/admin/usage", {
+    const { data } = await privateApi.get<AdminUsageSummary>("/admin/usage", {
       params: { days },
     });
     return data;

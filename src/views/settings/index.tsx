@@ -11,7 +11,7 @@ import {
 } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/configs/routes";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { useDeleteAccount, useMe } from "@/queries/auth.queries";
 import { AvatarPicker } from "@/views/settings/components/AvatarPicker";
 import { DeleteAccountDialog } from "@/views/settings/components/DeleteAccountDialog";

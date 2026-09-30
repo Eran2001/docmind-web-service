@@ -16,7 +16,7 @@ import { Logo, LogoMark } from "@/components/layout/Logo";
 import { Button } from "@/components/ui/button";
 import { DEMO_EMAIL, DEMO_PASSWORD } from "@/configs/constants";
 import { routes } from "@/configs/routes";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { useLogin } from "@/queries/auth.queries";
 import { ChatPreview } from "@/views/landing/components/ChatPreview";
 

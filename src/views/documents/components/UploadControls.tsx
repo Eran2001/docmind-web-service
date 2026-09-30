@@ -11,7 +11,7 @@ import {
   UPLOAD_EXTENSIONS,
   UPLOAD_MAX_BYTES,
 } from "@/configs/constants";
-import { getErrorMessage, normalizeError } from "@/lib/axios";
+import { getErrorMessage, normalizeError } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { useAddUrl, useUploadDocument } from "@/queries/documents.queries";
 import { addUrlSchema } from "@/schemas/collection.schema";

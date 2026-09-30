@@ -1,15 +1,17 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/configs/constants";
+import { ACCESS_COOKIE } from "@/configs/constants";
 import { AUTH_ROUTES, routes } from "@/configs/routes";
+import { isExpired } from "@/lib/api/jwt";
 
 const PROTECTED = ["/collections", "/evals", "/usage", "/settings", "/admin"];
 
-// Cookie presence only; the API validates the tokens. A live refresh cookie counts as signed in
-// because the access cookie expires first and the client refreshes it on the next 401.
+// Signed in = a readable, unexpired access token in the cookie. The signature can't be checked here (the secret lives in the API);
+// the client confirms the session with GET /auth/me right after, and any 401 sends the user back to /login.
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const signedIn = req.cookies.has(ACCESS_COOKIE) || req.cookies.has(REFRESH_COOKIE);
+  const token = req.cookies.get(ACCESS_COOKIE)?.value;
+  const signedIn = !!token && !isExpired(token);
 
   if (!signedIn && PROTECTED.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     const url = req.nextUrl.clone();

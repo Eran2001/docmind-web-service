@@ -1,40 +1,45 @@
 import type { ChangePasswordInput, LoginInput, RegisterInput, UpdateProfileInput } from "@/schemas";
-import type { User } from "@/types";
+import type { AuthSession, User } from "@/types";
 
-import { api } from "@/lib/axios";
+import { privateApi } from "@/lib/api/private.api";
+import { publicApi } from "@/lib/api/public.api";
+import { clearSession, setAccessToken } from "@/lib/api/session";
+
+// Register and login answer with `data: { accessToken, tokenType, expiresIn, user }`. The token is kept here (in a cookie the
+// route guard can read) so every caller gets it stored; the user goes back to the caller for the query cache.
+function startSession(session: AuthSession): User {
+  setAccessToken(session.accessToken, session.expiresIn);
+  return session.user;
+}
 
 export const authService = {
+  /** Confirms the stored token with the API and returns the signed-in user. */
   async me(): Promise<User> {
-    const { data } = await api.get<{ user: User }>("/auth/me", {
-      skipAuthRefresh: false,
-    });
+    const { data } = await privateApi.get<{ user: User }>("/auth/me");
     return data.user;
   },
   async login(input: LoginInput): Promise<User> {
-    const { data } = await api.post<{ user: User }>("/auth/login", input, {
-      skipAuthRefresh: true,
-    });
-    return data.user;
+    const { data } = await publicApi.post<AuthSession>("/auth/login", input);
+    return startSession(data);
   },
   async register(input: RegisterInput): Promise<User> {
-    const { data } = await api.post<{ user: User }>("/auth/register", input, {
-      skipAuthRefresh: true,
-    });
-    return data.user;
+    const { data } = await publicApi.post<AuthSession>("/auth/register", input);
+    return startSession(data);
   },
+  /** Drops the token here. (POST /auth/logout, which also revokes the refresh token, comes with the API's refresh flow.) */
   async logout(): Promise<void> {
-    await api.post("/auth/logout", null, { skipAuthRefresh: true });
+    clearSession();
   },
+  // The three below are still answered by the mock until the API builds them.
   async updateProfile(input: UpdateProfileInput): Promise<User> {
-    const { data } = await api.patch<{ user: User }>("/auth/me", input);
+    const { data } = await privateApi.patch<{ user: User }>("/auth/me", input);
     return data.user;
   },
-  async changePassword(
-    input: Pick<ChangePasswordInput, "currentPassword" | "newPassword">,
-  ): Promise<void> {
-    await api.post("/auth/change-password", input);
+  async changePassword(input: Pick<ChangePasswordInput, "currentPassword" | "newPassword">): Promise<void> {
+    await privateApi.post("/auth/change-password", input);
   },
   async deleteAccount(): Promise<void> {
-    await api.delete("/auth/me");
+    await privateApi.delete("/auth/me");
+    clearSession();
   },
 };

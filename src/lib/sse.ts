@@ -1,7 +1,8 @@
 import type { SseEvent, SseEventName } from "@/types";
 
 import { env } from "@/configs/env";
-import { ApiError, normalizeError, refreshSession } from "@/lib/axios";
+import { ApiError, normalizeError } from "@/lib/api/errors";
+import { clearSession, getAccessToken } from "@/lib/api/session";
 
 export interface StreamChatArgs {
   conversationId: string;
@@ -54,25 +55,22 @@ export async function streamChat(args: StreamChatArgs): Promise<void> {
       headers: {
         "Content-Type": "application/json",
         Accept: "text/event-stream",
+        ...(getAccessToken() ? { Authorization: `Bearer ${getAccessToken()}` } : {}),
       },
       body: JSON.stringify({ content }),
       signal,
     });
 
-  let res = await request();
+  const res = await request();
   if (res.status === 401) {
-    await refreshSession();
-    res = await request();
+    clearSession();
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- full reload on purpose, this runs outside React
+    window.location.href = "/login";
   }
   if (!res.ok || !res.body) {
-    const body = (await res.json().catch(() => null)) as {
-      error?: { code?: string; message?: string };
-    } | null;
-    throw new ApiError(
-      body?.error?.code ?? "INTERNAL_ERROR",
-      body?.error?.message ?? "Couldn't send your message.",
-      res.status,
-    );
+    // Failure envelope: { code, error, message, ... }
+    const body = (await res.json().catch(() => null)) as { code?: string; message?: string } | null;
+    throw new ApiError(body?.code ?? "InternalError", body?.message ?? "Couldn't send your message.", res.status);
   }
 
   const reader = res.body.getReader();

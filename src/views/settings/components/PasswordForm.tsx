@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/common/Spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { useChangePassword } from "@/queries/auth.queries";
 import {
   changePasswordSchema,

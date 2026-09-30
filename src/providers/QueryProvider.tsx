@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { env } from "@/configs/env";
-import { ApiError } from "@/lib/axios";
+import { ApiError } from "@/lib/api/errors";
 
 function makeClient() {
   return new QueryClient({

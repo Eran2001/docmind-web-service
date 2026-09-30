@@ -13,7 +13,7 @@ import { Spinner } from "@/components/common/Spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { routes } from "@/configs/routes";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage, normalizeError } from "@/lib/api/errors";
 import { useLogin, useRegister } from "@/queries/auth.queries";
 import {
   loginSchema,
@@ -64,10 +64,26 @@ export function AuthView({ mode }: { mode: Mode }) {
   const onSubmit = form.handleSubmit((values) => {
     const options = {
       onSuccess: () => router.replace(next),
-      onError: (err: unknown) =>
+      onError: (err: unknown) => {
+        // Field-level problems from the API (e.g. "email already registered") show under the input, not as a toast.
+        const fields = Object.entries(normalizeError(err).fieldErrors).filter(
+          (entry): entry is [keyof RegisterInput, string[]] =>
+            entry[0] in form.getValues(),
+        );
+        if (fields.length) {
+          fields.forEach(([field, messages], i) =>
+            form.setError(
+              field,
+              { message: messages[0] },
+              { shouldFocus: i === 0 },
+            ),
+          );
+          return;
+        }
         toast.error(isRegister ? "Couldn't create account" : "Sign in failed", {
           description: getErrorMessage(err),
-        }),
+        });
+      },
     };
     if (isRegister) register.mutate(values, options);
     else
@@ -108,7 +124,7 @@ export function AuthView({ mode }: { mode: Mode }) {
             <label className="flex flex-col gap-1.5">
               <span className="text-[13px] font-medium">Full name</span>
               <Input
-                placeholder="Maya Chen"
+                placeholder="Enter your fullname"
                 autoComplete="name"
                 aria-invalid={!!errors.name}
                 {...form.register("name")}
@@ -121,7 +137,7 @@ export function AuthView({ mode }: { mode: Mode }) {
             <span className="text-[13px] font-medium">Work email</span>
             <Input
               type="email"
-              placeholder="you@company.com"
+              placeholder="Enter your email"
               autoComplete="email"
               aria-invalid={!!errors.email}
               {...form.register("email")}

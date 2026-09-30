@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { FEEDBACK_REASONS } from "@/configs/constants";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { useSendFeedback } from "@/queries/chat.queries";
 import { plainAnswer } from "@/utils/citations";

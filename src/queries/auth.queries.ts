@@ -42,7 +42,9 @@ export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: UpdateProfileInput) => authService.updateProfile(input),
-    onSuccess: (user: User) => qc.setQueryData(queryKeys.auth.me, user),
+    // Merge instead of replace: the mock answers with its own id/role, which must not overwrite the real user's.
+    onSuccess: (user: User) =>
+      qc.setQueryData<User>(queryKeys.auth.me, (old) => (old ? { ...old, name: user.name, email: user.email } : user)),
   });
 }
 

@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { PageContainer, PageHeader, PageTitle, HEADER_BUTTON, HeaderButtonLabel } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/configs/routes";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { useCollections } from "@/queries/collections.queries";
 import { NewCollectionDialog } from "@/views/collections/components/NewCollectionDialog";
 import { formatRelative } from "@/utils/format-date";

@@ -7,7 +7,7 @@ import type { Conversation, ConversationDetail, Message } from "@/types";
 
 import { routes } from "@/configs/routes";
 import { queryKeys } from "@/configs/query-keys";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { streamChat } from "@/lib/sse";
 import { chatService } from "@/services/chat.service";
 import { useChatStore } from "@/stores/chat.store";

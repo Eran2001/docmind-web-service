@@ -11,7 +11,7 @@ import { PageContainer, PageHeader, PageTitle, HEADER_BUTTON, HeaderButtonLabel 
 import { Button } from "@/components/ui/button";
 import { USAGE_RANGES, type UsageRange } from "@/configs/constants";
 import { routes } from "@/configs/routes";
-import { getErrorMessage } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { useAdminUsage, useUsage } from "@/queries/usage.queries";
 import { downloadCsv } from "@/utils/download-csv";
