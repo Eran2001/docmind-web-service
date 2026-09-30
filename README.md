@@ -1,32 +1,42 @@
-# DocMind
+# DocMind Web
 
-Chat with your documents. Monorepo layout:
+Chat with your documents. Next.js 16 frontend for the DocMind platform (spec: `01-docmind-rag-platform.md`).
+Sibling services: `docmind-api-service` (NestJS) and `docmind-ai-service` (FastAPI).
 
-- `apps/web` — Next.js 15 frontend
-- `packages/shared` — API types, zod schemas and SSE event types shared by web and (later) api
-
-`apps/api` and `services/ai` are not built yet; see `01-docmind-rag-platform.md`.
-
-## Run the web app
+## Run
 
 ```bash
-pnpm install
-pnpm dev            # http://localhost:3000
-pnpm typecheck && pnpm lint && pnpm build
+npm install
+npm run dev          # http://localhost:3000
+npm run typecheck && npm run lint && npm run build
 ```
 
-The web app talks to the Node API described in spec section 8 through `apps/web/src/services`.
-Until that API exists it runs against an in-browser mock (`apps/web/src/lib/mock`), enabled by
-`NEXT_PUBLIC_USE_MOCKS=true` (the default, see `apps/web/.env.example`). Mock data is kept in
+The web app talks to the API described in spec section 8 through `src/services`.
+Until that API exists it runs against an in-browser mock (`src/lib/mock`), enabled by
+`NEXT_PUBLIC_USE_MOCKS=true` (the default, see `.env.example`). Mock data is kept in
 `localStorage`; clear the `docmind.mock.v2` key to reset it. Any email/password signs in
 (password `wrong-password` fails, to exercise the error toast), and every mock user is an admin.
 
 To use the real API, set `NEXT_PUBLIC_USE_MOCKS=false` and `NEXT_PUBLIC_API_URL`.
 
-## Frontend structure
+## Structure
 
-Routing only in `src/app`; screens in `src/views/<screen>`. Data flows
-component → `queries/` hook → `services/` function → `lib/axios.ts`. Server state lives in TanStack
-Query, UI state in Zustand (`stores/`). The chat stream uses `lib/sse.ts` (fetch + ReadableStream).
+```
+src/
+├── app/          routing only (Next.js App Router)
+├── views/        one folder per screen
+├── components/   ui (shadcn), layout, common
+├── queries/      TanStack Query hooks
+├── services/     Axios calls per domain
+├── stores/       Zustand UI state
+├── types/        API + SSE event types (mirror of what the API returns)
+├── schemas/      zod schemas per domain
+├── configs/ providers/ hooks/ lib/ utils/ styles/
+└── proxy.ts       (auth redirect; called middleware.ts before Next 16)
+```
 
-Settings (`09-Settings.html`) is built at `/settings`. The spec has no endpoints for it, so the mock adds `PATCH /auth/me`, `POST /auth/change-password` and `DELETE /auth/me`; the real API needs the same three (and "wrong-password" as the current password fails in the mock).
+Data flows component → `queries/` hook → `services/` function → `lib/axios.ts`. Server state lives in TanStack
+Query, UI state in Zustand. The chat stream uses `lib/sse.ts` (fetch + ReadableStream).
+
+Settings (`/settings`) is not in the spec's API; the mock adds `PATCH /auth/me`, `POST /auth/change-password` and
+`DELETE /auth/me`, and the real API needs the same three.
