@@ -6,6 +6,11 @@ const REAL_ROUTES: readonly { method: string; path: string }[] = [
   { method: "POST", path: "/auth/register" },
   { method: "POST", path: "/auth/login" },
   { method: "GET", path: "/auth/me" },
+  { method: "POST", path: "/auth/refresh" },
+  { method: "POST", path: "/auth/logout" },
+  { method: "PATCH", path: "/auth/me" },
+  { method: "POST", path: "/auth/change-password" },
+  { method: "DELETE", path: "/auth/me" },
 ];
 
 export function isRealApiRoute(config: InternalAxiosRequestConfig): boolean {

@@ -3,12 +3,15 @@ import type { ChangePasswordInput, LoginInput, RegisterInput, UpdateProfileInput
 import type { User } from "@/types";
 
 import { queryKeys } from "@/configs/query-keys";
+import { hasStoredSession } from "@/lib/api/session";
 import { authService } from "@/services/auth.service";
 
 export function useMe() {
   return useQuery({
     queryKey: queryKeys.auth.me,
     queryFn: authService.me,
+    // No stored session (signed out, or the account was just deleted) means there is nothing to ask the API about.
+    enabled: hasStoredSession(),
     staleTime: 5 * 60_000,
     retry: false,
   });
@@ -42,9 +45,7 @@ export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: UpdateProfileInput) => authService.updateProfile(input),
-    // Merge instead of replace: the mock answers with its own id/role, which must not overwrite the real user's.
-    onSuccess: (user: User) =>
-      qc.setQueryData<User>(queryKeys.auth.me, (old) => (old ? { ...old, name: user.name, email: user.email } : user)),
+    onSuccess: (user: User) => qc.setQueryData(queryKeys.auth.me, user),
   });
 }
 

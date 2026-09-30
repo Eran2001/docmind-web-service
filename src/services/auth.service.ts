@@ -8,7 +8,7 @@ import { clearSession, setAccessToken } from "@/lib/api/session";
 // Register and login answer with `data: { accessToken, tokenType, expiresIn, user }`. The token is kept here (in a cookie the
 // route guard can read) so every caller gets it stored; the user goes back to the caller for the query cache.
 function startSession(session: AuthSession): User {
-  setAccessToken(session.accessToken, session.expiresIn);
+  setAccessToken(session.accessToken);
   return session.user;
 }
 
@@ -26,11 +26,14 @@ export const authService = {
     const { data } = await publicApi.post<AuthSession>("/auth/register", input);
     return startSession(data);
   },
-  /** Drops the token here. (POST /auth/logout, which also revokes the refresh token, comes with the API's refresh flow.) */
+  /** Revokes this browser's refresh token on the API, then drops the token here. Signs out locally even if the API is unreachable. */
   async logout(): Promise<void> {
-    clearSession();
+    try {
+      await publicApi.post("/auth/logout");
+    } finally {
+      clearSession();
+    }
   },
-  // The three below are still answered by the mock until the API builds them.
   async updateProfile(input: UpdateProfileInput): Promise<User> {
     const { data } = await privateApi.patch<{ user: User }>("/auth/me", input);
     return data.user;

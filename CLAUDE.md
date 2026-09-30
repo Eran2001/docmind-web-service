@@ -34,12 +34,17 @@ sonner (toasts) · next-themes · react-markdown · recharts · npm
 - Pages are Server Components that render a view; add `"use client"` only where needed.
 - Data flow: component → `queries/` hook → `services/` function → `lib/api/private.api.ts` (signed-in calls) or `lib/api/public.api.ts` (register, login). Components never call axios directly.
 - Server state ONLY in TanStack Query. Zustand is for UI state (sidebar, selected citation, streaming status). Never copy query data into Zustand.
+- Time: everything except the screen is UTC (ISO strings ending in `Z`). Convert ONLY for display, through `utils/local-time.ts` (`formatLocalDate`, `formatLocalTime`, `formatLocalDateTime`, `formatLocalDateTimeWithZone`, `getLocalTimeZone`); relative labels ("2h ago") are in `utils/format-date.ts`, built on it.
+  Send times to the API with `toUtcIso(...)` / `localDateTimeToUtcIso(date, time)`. Never `toLocaleString()`/`getHours()` an API timestamp by hand, and never store local times.
 - Query keys from `configs/query-keys.ts` factories; mutations invalidate the right keys.
 - Routes from `configs/routes.ts` builders, never string literals.
 - API base URL comes from `NEXT_PUBLIC_API_URL` in `.env` (validated in `configs/env.ts`). Both axios instances are made by `lib/api/base.ts` (base URL, `withCredentials`, unwrapping of the `{ code, data, ... }` envelope to just `data`).
   `private.api.ts` adds `Authorization: Bearer <access token>` and, on a 401, clears the session and goes to `/login?next=...`. Errors become `ApiError` (`lib/api/errors.ts`; `fieldErrors` for form fields).
-- Auth: register/login return `data: { accessToken, tokenType, expiresIn, user }`. `services/auth.service.ts` stores the access token in the `dm_access` cookie (`lib/api/session.ts`; short-lived, JS-readable so `proxy.ts` can guard routes)
-  and `useMe` (GET `/auth/me`) confirms the token and loads the user. The refresh token is an httpOnly cookie set by the API; JavaScript never reads it. Silent refresh is not built yet (a 401 just signs the user out).
+- Auth: register/login return `data: { accessToken, tokenType, expiresIn, user }`. `services/auth.service.ts` stores the access token in the `dm_access` cookie (`lib/api/session.ts`; JS-readable so `proxy.ts` can guard routes;
+  the cookie lives 7 days but the JWT inside only ~15 min) and `useMe` (GET `/auth/me`, only when a session exists) confirms it and loads the user. The refresh token is an httpOnly cookie set by the API; JavaScript never reads it.
+- Silent refresh (`lib/api/refresh.ts`): `private.api.ts` renews an expired JWT before a request and, on a 401, refreshes once and repeats the request. ONE refresh at a time (each refresh token works once); if another tab already refreshed, its token is reused.
+  If the API refuses the refresh (expired/revoked), `endSession()` clears the cookie and goes to `/login?next=...` (only from protected pages; public pages stay put). `proxy.ts` does NOT check JWT expiry, on purpose: it can't see the refresh cookie.
+- A 401 means "session over" to the web app, so the API must never use 401 for anything else (a wrong current password is a 400 field error).
 - While `NEXT_PUBLIC_USE_MOCKS=true`, only the calls listed in `lib/api/real-routes.ts` go to the real API; add a line there as each endpoint is built. Everything else is answered by `lib/mock`.
 - Chat stream: `fetch` + `ReadableStream` in `lib/sse.ts` (POST, so not EventSource; Axios can't stream). Same credentials + refresh logic. Event types from `src/types/sse-events.ts`.
 - Polling: document list every 3s ONLY while a doc is queued/processing (`refetchInterval` as a function); poll eval runs while queued/running.

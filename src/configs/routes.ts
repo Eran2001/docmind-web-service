@@ -16,3 +16,9 @@ export const routes = {
 } as const;
 
 export const AUTH_ROUTES: string[] = [routes.login, routes.register];
+
+// Pages that need a signed-in user (guarded by proxy.ts). Everything else, like the landing page, is public.
+export const PROTECTED_PREFIXES = ["/collections", "/evals", "/usage", "/settings", "/admin"] as const;
+
+export const isProtectedPath = (pathname: string): boolean =>
+  PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));

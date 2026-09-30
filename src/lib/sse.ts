@@ -2,7 +2,8 @@ import type { SseEvent, SseEventName } from "@/types";
 
 import { env } from "@/configs/env";
 import { ApiError, normalizeError } from "@/lib/api/errors";
-import { clearSession, getAccessToken } from "@/lib/api/session";
+import { refreshSession } from "@/lib/api/refresh";
+import { endSession, getAccessToken, hasStoredSession } from "@/lib/api/session";
 
 export interface StreamChatArgs {
   conversationId: string;
@@ -61,12 +62,17 @@ export async function streamChat(args: StreamChatArgs): Promise<void> {
       signal,
     });
 
-  const res = await request();
+  if (!getAccessToken() && hasStoredSession()) await refreshSession().catch(() => undefined);
+  let res = await request();
   if (res.status === 401) {
-    clearSession();
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- full reload on purpose, this runs outside React
-    window.location.href = "/login";
+    // Expired mid-flight: renew once and repeat the request; if that fails the session is over.
+    const renewed = await refreshSession().then(
+      () => true,
+      () => false,
+    );
+    if (renewed) res = await request();
   }
+  if (res.status === 401) endSession();
   if (!res.ok || !res.body) {
     // Failure envelope: { code, error, message, ... }
     const body = (await res.json().catch(() => null)) as { code?: string; message?: string } | null;

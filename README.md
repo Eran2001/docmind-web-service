@@ -9,7 +9,7 @@ page, and the passage.
 This repository is the **web app** (Next.js). It is one of three services; see [The three services](#the-three-services).
 
 > **Project status:** work in progress, built phase by phase as an AI full-stack training project.
-> All screens are built. Register, login and the session check use the real API; the rest of the app still runs on an
+> All screens are built. Sign-in, sessions and account settings use the real API; the rest of the app still runs on an
 > in-browser mock until the backend catches up. See [Status](#status) for the honest list.
 
 ---
@@ -107,13 +107,12 @@ Works from phone to desktop, in light and dark mode.
 | Area | State |
 |---|---|
 | All screens and interactions | Built (see above) |
-| Register, login, session check | **Real**: talks to the API, accounts stored in Postgres, argon2id-hashed passwords |
-| Silent token refresh, logout revocation | Next up (API) |
+| Register, login, sign out, silent session refresh | **Real**: talks to the API, accounts stored in Postgres, argon2id-hashed passwords |
+| Settings: edit profile, change password, delete account | **Real** |
 | Collections, documents, upload | Mock; API next |
 | Ingestion (parse, chunk, embed) | Needs the AI service (not built yet) |
 | Chat, citations, streaming | Mock stream in the UI; real one needs API + AI service |
 | Feedback, usage, evals | Mock; API next |
-| Settings (profile, password, delete) | Mock; the API doesn't have these endpoints yet |
 | Tests | Not yet for the web app (the API has its own test suite) |
 
 The mock lives in `src/lib/mock` and answers everything except the calls listed in `src/lib/api/real-routes.ts`. As each

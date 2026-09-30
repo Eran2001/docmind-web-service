@@ -9,6 +9,8 @@ declare module "axios" {
   interface AxiosRequestConfig {
     /** Don't sign the user out / redirect to /login when this request gets a 401 (used while checking a session). */
     skipAuthRedirect?: boolean;
+    /** Set once a request has been retried after a silent refresh, so it is never retried twice. */
+    _retried?: boolean;
   }
 }
 
