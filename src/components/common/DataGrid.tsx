@@ -28,6 +28,8 @@ export interface DataGridColumn<T> {
   wide?: boolean;
   /** Card layout: leave this column out (e.g. a row chevron). */
   hideInGrid?: boolean;
+  /** Card layout: align the label and value (e.g. "right" to pin a column to the card's right edge). */
+  gridAlign?: "left" | "right";
   align?: "left" | "right" | "center";
   headClassName?: string;
   cellClassName?: string;
@@ -60,7 +62,11 @@ export interface DataGridProps<T> {
   };
 }
 
-const ALIGN = { left: undefined, right: "text-right", center: "text-center" } as const;
+const ALIGN = {
+  left: undefined,
+  right: "text-right",
+  center: "text-center",
+} as const;
 
 // A table at `lg` and wider, a grid of cards below it.
 export function DataGrid<T>(props: DataGridProps<T>) {
@@ -100,7 +106,10 @@ function DataTable<T>({
       <TableHeader>
         <TableRow className="hover:bg-transparent">
           {columns.map((c) => (
-            <TableHead key={c.key} className={cn(ALIGN[c.align ?? "left"], c.headClassName)}>
+            <TableHead
+              key={c.key}
+              className={cn(ALIGN[c.align ?? "left"], c.headClassName)}
+            >
               {c.header}
             </TableHead>
           ))}
@@ -111,10 +120,18 @@ function DataTable<T>({
           Array.from({ length: skeletonCount }, (_, i) => (
             <TableRow key={i} className="animate-dmpulse">
               {columns.map((c) => (
-                <TableCell key={c.key} className={cn(ALIGN[c.align ?? "left"], c.cellClassName)}>
+                <TableCell
+                  key={c.key}
+                  className={cn(ALIGN[c.align ?? "left"], c.cellClassName)}
+                >
                   {c.skeleton
                     ? c.skeleton(i)
-                    : c.header && <SkeletonLine align={c.align} className={c.skeletonClassName ?? "w-24"} />}
+                    : c.header && (
+                        <SkeletonLine
+                          align={c.align}
+                          className={c.skeletonClassName ?? "w-24"}
+                        />
+                      )}
                 </TableCell>
               ))}
             </TableRow>
@@ -122,7 +139,10 @@ function DataTable<T>({
 
         {!loading && rows.length === 0 && empty && (
           <TableRow className="hover:bg-transparent">
-            <TableCell colSpan={columns.length} className="p-0 whitespace-normal">
+            <TableCell
+              colSpan={columns.length}
+              className="p-0 whitespace-normal"
+            >
               {empty}
             </TableCell>
           </TableRow>
@@ -136,17 +156,27 @@ function DataTable<T>({
                 <TableRow
                   onClick={onRowClick && (() => onRowClick(row))}
                   aria-expanded={expanded ? open : undefined}
-                  className={cn("animate-dmin", onRowClick && "cursor-pointer", rowClassName?.(row))}
+                  className={cn(
+                    "animate-dmin",
+                    onRowClick && "cursor-pointer",
+                    rowClassName?.(row),
+                  )}
                 >
                   {columns.map((c) => (
-                    <TableCell key={c.key} className={cn(ALIGN[c.align ?? "left"], c.cellClassName)}>
+                    <TableCell
+                      key={c.key}
+                      className={cn(ALIGN[c.align ?? "left"], c.cellClassName)}
+                    >
                       {c.cell(row)}
                     </TableCell>
                   ))}
                 </TableRow>
                 {open && expanded && (
                   <TableRow className="bg-surface2 hover:bg-surface2">
-                    <TableCell colSpan={columns.length} className="p-0 whitespace-normal">
+                    <TableCell
+                      colSpan={columns.length}
+                      className="p-0 whitespace-normal"
+                    >
                       {expanded.render(row, "table")}
                     </TableCell>
                   </TableRow>
@@ -157,7 +187,11 @@ function DataTable<T>({
       </TableBody>
     </Table>
   );
-  return bare ? table : <div className="overflow-hidden rounded-xl border">{table}</div>;
+  return bare ? (
+    table
+  ) : (
+    <div className="overflow-hidden rounded-xl border">{table}</div>
+  );
 }
 
 function CardGrid<T>({
@@ -175,7 +209,9 @@ function CardGrid<T>({
 }: DataGridProps<T>) {
   const primary = columns.find((c) => c.primary);
   const corner = columns.filter((c) => c.corner);
-  const details = columns.filter((c) => !c.primary && !c.corner && !c.hideInGrid);
+  const details = columns.filter(
+    (c) => !c.primary && !c.corner && !c.hideInGrid,
+  );
 
   const container = cn(
     bare ? "flex flex-col divide-y" : "grid grid-cols-1 gap-3 sm:grid-cols-2",
@@ -183,7 +219,9 @@ function CardGrid<T>({
   );
   const item = cn(
     "flex flex-col gap-3",
-    bare ? "py-4 first:pt-0" : "rounded-xl border bg-background p-4 transition-colors",
+    bare
+      ? "py-4 first:pt-0"
+      : "rounded-xl border bg-background p-4 transition-colors",
   );
 
   if (loading) {
@@ -194,7 +232,11 @@ function CardGrid<T>({
             {(primary || corner.length > 0) && (
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  {primary?.skeleton ? primary.skeleton(i) : <SkeletonLine className="w-3/5" />}
+                  {primary?.skeleton ? (
+                    primary.skeleton(i)
+                  ) : (
+                    <SkeletonLine className="w-3/5" />
+                  )}
                 </div>
                 {corner.map((c) => (
                   <div key={c.key} className="flex-none">
@@ -210,7 +252,11 @@ function CardGrid<T>({
                     <SkeletonLine className="w-12" />
                   </div>
                   <div className="mt-0.5">
-                    {c.skeleton ? c.skeleton(i) : <SkeletonLine className="w-4/5" />}
+                    {c.skeleton ? (
+                      c.skeleton(i)
+                    ) : (
+                      <SkeletonLine className="w-4/5" />
+                    )}
                   </div>
                 </div>
               ))}
@@ -222,7 +268,9 @@ function CardGrid<T>({
   }
 
   if (rows.length === 0 && empty) {
-    return <div className={bare ? undefined : "rounded-xl border"}>{empty}</div>;
+    return (
+      <div className={bare ? undefined : "rounded-xl border"}>{empty}</div>
+    );
   }
 
   return (
@@ -240,7 +288,10 @@ function CardGrid<T>({
             onKeyDown={
               onRowClick
                 ? (e) => {
-                    if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
+                    if (
+                      e.target === e.currentTarget &&
+                      (e.key === "Enter" || e.key === " ")
+                    ) {
                       e.preventDefault();
                       onRowClick(row);
                     }
@@ -268,8 +319,17 @@ function CardGrid<T>({
             {details.length > 0 && (
               <dl className="m-0 grid grid-cols-2 gap-x-4 gap-y-3">
                 {details.map((c) => (
-                  <div key={c.key} className={cn("min-w-0", c.wide && "col-span-2")}>
-                    <dt className="text-xs text-muted-foreground">{c.header}</dt>
+                  <div
+                    key={c.key}
+                    className={cn(
+                      "min-w-0",
+                      c.wide && "col-span-2",
+                      c.gridAlign === "right" && "text-right",
+                    )}
+                  >
+                    <dt className="text-xs text-muted-foreground">
+                      {c.header}
+                    </dt>
                     <dd className="m-0 mt-0.5 min-w-0">{c.cell(row)}</dd>
                   </div>
                 ))}

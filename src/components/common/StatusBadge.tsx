@@ -29,7 +29,7 @@ export function StatusBadge({
   const badge = (
     <span
       className={cn(
-        "inline-flex h-[22px] items-center gap-1.5 rounded-full px-[9px] text-xs font-medium whitespace-nowrap",
+        "inline-flex h-5.5 items-center gap-1.5 rounded-full px-2.25 text-xs font-medium whitespace-nowrap",
         s.className,
       )}
     >
@@ -56,7 +56,7 @@ export function StatusBadge({
       <TooltipContent
         side="top"
         align="start"
-        className="w-[260px] rounded-[10px] px-3 py-2.5 text-xs leading-[1.45]"
+        className="w-65 rounded-[10px] px-3 py-2.5 text-xs leading-[1.45]"
       >
         <span className="mb-0.5 block font-medium">Processing failed</span>
         {error}

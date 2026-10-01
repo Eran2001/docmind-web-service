@@ -36,7 +36,7 @@ export function CitationPanel({
 
   return (
     <div className="flex h-full flex-col bg-background">
-      <div className="flex h-[52px] flex-none items-center justify-between border-b pr-3 pl-5">
+      <div className="flex h-13 flex-none items-center justify-between border-b pr-3 pl-5">
         <div className="flex items-center gap-2 text-[13px] font-medium">
           Source
           {citation && (
@@ -53,7 +53,7 @@ export function CitationPanel({
         <button
           onClick={onClose}
           aria-label="Close sources"
-          className="grid size-[30px] place-items-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
+          className="grid size-7.5 place-items-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
         >
           <X className="size-4" />
         </button>
@@ -61,8 +61,8 @@ export function CitationPanel({
 
       {!citation ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-2.5 p-8 text-center text-muted-foreground">
-          <Quote className="size-[18px]" />
-          <p className="m-0 max-w-[220px] text-[13px]">
+          <Quote className="size-4.5" />
+          <p className="m-0 max-w-55 text-[13px]">
             Select a citation in an answer to read the source passage here.
           </p>
         </div>
@@ -73,7 +73,7 @@ export function CitationPanel({
               <DocIcon type={type} className="size-4" />
             </div>
             <div className="min-w-0">
-              <div className="text-sm leading-[1.4] font-medium break-words">
+              <div className="text-sm leading-[1.4] font-medium wrap-break-word">
                 {citation.documentTitle}
               </div>
               <div className="mt-0.5 text-[13px] text-muted-foreground">
@@ -85,7 +85,7 @@ export function CitationPanel({
             </div>
           </div>
 
-          <div className="mt-4 rounded-xl bg-secondary px-[18px] py-4 text-sm leading-[1.7] text-muted-foreground">
+          <div className="mt-4 rounded-xl bg-secondary px-4.5 py-4 text-sm leading-[1.7] text-muted-foreground">
             {chunk.isPending ? (
               <div className="flex animate-dmpulse flex-col gap-2">
                 <Bone className="h-3 w-full bg-border" />
@@ -95,13 +95,13 @@ export function CitationPanel({
             ) : chunk.data ? (
               <>
                 {chunk.data.contextBefore}
-                <mark className="rounded-[2px] bg-accent-bg px-0 py-px text-foreground shadow-[inset_0_-1.5px_0_var(--link)]">
+                <mark className="rounded-xs bg-accent-bg px-0 py-px text-foreground shadow-[inset_0_-1.5px_0_var(--link)]">
                   {chunk.data.content}
                 </mark>
                 {chunk.data.contextAfter}
               </>
             ) : (
-              <mark className="rounded-[2px] bg-accent-bg text-foreground">
+              <mark className="rounded-xs bg-accent-bg text-foreground">
                 {citation.snippet}
               </mark>
             )}

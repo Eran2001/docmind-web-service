@@ -9,7 +9,13 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { DataGrid, type DataGridColumn } from "@/components/common/DataGrid";
 import { SkeletonLine } from "@/components/common/Skeletons";
 import { TruncatedText } from "@/components/common/TruncatedText";
-import { PageContainer, PageHeader, PageTitle, HEADER_BUTTON, HeaderButtonLabel } from "@/components/layout/PageHeader";
+import {
+  PageContainer,
+  PageHeader,
+  PageTitle,
+  HEADER_BUTTON,
+  HeaderButtonLabel,
+} from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/configs/routes";
 import { getErrorMessage } from "@/lib/api/errors";
@@ -67,6 +73,7 @@ const columns: DataGridColumn<EvalSetSummary>[] = [
     key: "questions",
     header: "Questions",
     align: "right",
+    gridAlign: "right",
     headClassName: "w-25",
     cellClassName: mono,
     skeletonClassName: "w-7",
@@ -81,10 +88,12 @@ const columns: DataGridColumn<EvalSetSummary>[] = [
   {
     key: "lastRun",
     header: "Last run",
+    gridAlign: "right",
     headClassName: "w-32.5",
     cellClassName: "whitespace-nowrap text-muted-foreground",
     skeletonClassName: "w-17.5",
-    cell: (s) => (s.lastRun ? formatRelative(s.lastRun.finishedAt) : "Never run"),
+    cell: (s) =>
+      s.lastRun ? formatRelative(s.lastRun.finishedAt) : "Never run",
   },
   {
     key: "open",
@@ -101,10 +110,15 @@ function ScoreCell({ score }: { score?: number }) {
   const low = score < 0.7;
   return (
     <span className="inline-flex items-center gap-2.5">
-      <span className={cn(mono, "font-medium", low && "text-warn")}>{score.toFixed(2)}</span>
+      <span className={cn(mono, "font-medium", low && "text-warn")}>
+        {score.toFixed(2)}
+      </span>
       <span className="block h-1 w-16 overflow-hidden rounded-full bg-secondary">
         <span
-          className={cn("block h-full rounded-full", low ? "bg-warn" : "bg-foreground")}
+          className={cn(
+            "block h-full rounded-full",
+            low ? "bg-warn" : "bg-foreground",
+          )}
           style={{ width: `${Math.round(score * 100)}%` }}
         />
       </span>
@@ -122,11 +136,17 @@ export function EvalsView() {
   const sets = all.filter(
     (s) =>
       !filter ||
-      [s.name, s.description ?? "", s.collectionName].some((t) => t.toLowerCase().includes(filter)),
+      [s.name, s.description ?? "", s.collectionName].some((t) =>
+        t.toLowerCase().includes(filter),
+      ),
   );
 
   const newButton = (
-    <Button onClick={() => setDialog(true)} aria-label="New eval set" className={HEADER_BUTTON}>
+    <Button
+      onClick={() => setDialog(true)}
+      aria-label="New eval set"
+      className={HEADER_BUTTON}
+    >
       <Plus />
       <HeaderButtonLabel>New eval set</HeaderButtonLabel>
     </Button>

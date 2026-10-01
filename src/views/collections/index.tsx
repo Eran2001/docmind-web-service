@@ -2,21 +2,43 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Ellipsis, FileText, Folder, FolderPlus, Plus, Search, Trash2 } from "lucide-react";
+import {
+  Ellipsis,
+  FileText,
+  Folder,
+  FolderPlus,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { Collection } from "@/types";
 
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { EmptyState } from "@/components/common/EmptyState";
 import { CardGridSkeleton } from "@/components/common/Skeletons";
-import { PageContainer, PageHeader, PageTitle, HEADER_BUTTON, HeaderButtonLabel } from "@/components/layout/PageHeader";
+import {
+  PageContainer,
+  PageHeader,
+  PageTitle,
+  HEADER_BUTTON,
+  HeaderButtonLabel,
+} from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { routes } from "@/configs/routes";
 import { useDebounce } from "@/hooks/useDebounce";
 import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
-import { useCollections, useDeleteCollection } from "@/queries/collections.queries";
+import {
+  useCollections,
+  useDeleteCollection,
+} from "@/queries/collections.queries";
 import { NewCollectionDialog } from "@/views/collections/components/NewCollectionDialog";
 import { formatRelative } from "@/utils/format-date";
 
@@ -26,7 +48,8 @@ export function CollectionsView() {
   const [q, setQ] = useState("");
   // The API does the filtering (?search=); wait a moment after the last keystroke instead of asking on every letter.
   const search = useDebounce(q.trim(), 300);
-  const { data, isPending, isPlaceholderData, isError, error, refetch } = useCollections(search);
+  const { data, isPending, isPlaceholderData, isError, error, refetch } =
+    useCollections(search);
   const remove = useDeleteCollection();
   const [dialog, setDialog] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Collection | null>(null);
@@ -35,7 +58,11 @@ export function CollectionsView() {
   const items = data ?? [];
   const searching = q.trim() !== "";
   const newButton = (
-    <Button onClick={() => setDialog(true)} aria-label="New collection" className={HEADER_BUTTON}>
+    <Button
+      onClick={() => setDialog(true)}
+      aria-label="New collection"
+      className={HEADER_BUTTON}
+    >
       <Plus />
       <HeaderButtonLabel>New collection</HeaderButtonLabel>
     </Button>
@@ -46,10 +73,15 @@ export function CollectionsView() {
     if (!target) return;
     remove.mutate(target.resourceId, {
       onSuccess: () => {
-        toast.success("Collection deleted", { description: `“${target.name}” and its documents were removed.` });
+        toast.success("Collection deleted", {
+          description: `“${target.name}” and its documents were removed.`,
+        });
         setPendingDelete(null);
       },
-      onError: (err) => toast.error("Couldn't delete the collection", { description: getErrorMessage(err) }),
+      onError: (err) =>
+        toast.error("Couldn't delete the collection", {
+          description: getErrorMessage(err),
+        }),
     });
   };
 
@@ -58,7 +90,10 @@ export function CollectionsView() {
       <PageHeader crumbs={[{ label: "Collections" }]} actions={newButton} />
       <PageContainer>
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-          <PageTitle title="Collections" description="Group related documents so answers only draw from the right sources." />
+          <PageTitle
+            title="Collections"
+            description="Group related documents so answers only draw from the right sources."
+          />
           {!isPending && (items.length > 0 || searching) && (
             <label className="relative flex w-full sm:w-65">
               <Search className="absolute top-3 left-3.5 size-3.5 text-faint" />
@@ -99,7 +134,9 @@ export function CollectionsView() {
         )}
 
         {!isPending && !isError && items.length === 0 && searching && (
-          <p className="py-12 text-center text-muted-foreground">No collections match “{q.trim()}”.</p>
+          <p className="py-12 text-center text-muted-foreground">
+            No collections match “{q.trim()}”.
+          </p>
         )}
 
         {items.length > 0 && (
@@ -126,13 +163,19 @@ export function CollectionsView() {
                       </span>
                     )}
                   </div>
-                  <div className="mt-4 text-[15px] font-medium tracking-[-0.01em]">{c.name}</div>
+                  <div className="mt-4 text-[15px] font-medium tracking-[-0.01em]">
+                    {c.name}
+                  </div>
                   <div className="mt-1 line-clamp-2 text-[13px] leading-normal text-muted-foreground">
                     {c.description ?? "No description"}
                   </div>
                   <div className="mt-auto flex items-center gap-1.5 pt-4 text-xs text-muted-foreground">
                     <FileText className="size-3.25" />
-                    <span>{c.documentCount === 1 ? "1 document" : `${c.documentCount} documents`}</span>
+                    <span>
+                      {c.documentCount === 1
+                        ? "1 document"
+                        : `${c.documentCount} documents`}
+                    </span>
                     <span className="text-faint">·</span>
                     <span>Updated {formatRelative(c.updatedAt)}</span>
                   </div>
@@ -143,13 +186,16 @@ export function CollectionsView() {
                       variant="ghost"
                       size="icon"
                       aria-label={`Actions for ${c.name}`}
-                      className="absolute top-3.5 right-3.5 size-8 text-muted-foreground"
+                      className="absolute top-3.5 right-3.5 size-8 text-muted-foreground focus-visible:ring-0"
                     >
                       <Ellipsis />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-40">
-                    <DropdownMenuItem variant="destructive" onSelect={() => setPendingDelete(c)}>
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onSelect={() => setPendingDelete(c)}
+                    >
                       <Trash2 /> Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -164,13 +210,20 @@ export function CollectionsView() {
 
       <ConfirmDialog
         open={!!pendingDelete}
-        onOpenChange={(open) => !open && !remove.isPending && setPendingDelete(null)}
+        onOpenChange={(open) =>
+          !open && !remove.isPending && setPendingDelete(null)
+        }
         title="Delete collection?"
         description={
           <>
-            <span className="font-medium text-foreground">{pendingDelete?.name}</span> and its{" "}
-            {pendingDelete?.documentCount === 1 ? "1 document" : `${pendingDelete?.documentCount ?? 0} documents`} will be permanently
-            deleted. This can&apos;t be undone.
+            <span className="font-medium text-foreground">
+              {pendingDelete?.name}
+            </span>{" "}
+            and its{" "}
+            {pendingDelete?.documentCount === 1
+              ? "1 document"
+              : `${pendingDelete?.documentCount ?? 0} documents`}{" "}
+            will be permanently deleted. This can&apos;t be undone.
           </>
         }
         confirmLabel="Delete"
