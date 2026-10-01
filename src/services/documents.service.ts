@@ -6,7 +6,9 @@ import { privateApi } from "@/lib/api/private.api";
 // invalidate the list, which refetches and shows the document with its real status.
 export const documentsService = {
   async list(collectionId: string): Promise<DocumentDto[]> {
-    const { data } = await privateApi.get<{ result: DocumentDto[] }>(`/collections/${collectionId}/documents`);
+    const { data } = await privateApi.get<{ result: DocumentDto[] }>(
+      `/collections/${collectionId}/documents`,
+    );
     return data.result;
   },
   /** multipart/form-data with one `file` field (one request per file). */
@@ -16,7 +18,9 @@ export const documentsService = {
     await privateApi.post(`/collections/${collectionId}/documents`, form);
   },
   async addUrl(collectionId: string, url: string): Promise<void> {
-    await privateApi.post(`/collections/${collectionId}/documents/url`, { url });
+    await privateApi.post(`/collections/${collectionId}/documents/url`, {
+      url,
+    });
   },
   async reprocess(documentId: string): Promise<void> {
     await privateApi.post(`/documents/${documentId}/reprocess`);
@@ -24,9 +28,10 @@ export const documentsService = {
   async remove(documentId: string): Promise<void> {
     await privateApi.delete(`/documents/${documentId}`);
   },
-  // Still answered by the mock until chat is real.
   async getChunk(documentId: string, chunkId: string): Promise<ChunkDetail> {
-    const { data } = await privateApi.get<ChunkDetail>(`/documents/${documentId}/chunks/${chunkId}`);
-    return data;
+    const { data } = await privateApi.get<
+      Omit<ChunkDetail, "id"> & { resourceId: string }
+    >(`/documents/${documentId}/chunks/${chunkId}`);
+    return { ...data, id: data.resourceId };
   },
 };

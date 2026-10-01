@@ -81,6 +81,10 @@ export interface Conversation {
   updatedAt: string;
 }
 
+export interface ConversationResource extends Omit<Conversation, "id"> {
+  resourceId: string;
+}
+
 export type MessageRole = "user" | "assistant";
 export type MessageStatus = "streaming" | "complete" | "error";
 
@@ -116,6 +120,17 @@ export interface Message {
 
 export interface ConversationDetail extends Conversation {
   messages: Message[];
+}
+
+export interface MessageResource extends Omit<Message, "id"> {
+  resourceId: string;
+}
+
+export interface ConversationDetailResource extends Omit<
+  ConversationResource,
+  never
+> {
+  messages: MessageResource[];
 }
 
 export interface Paginated<T> {

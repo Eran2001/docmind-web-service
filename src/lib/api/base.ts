@@ -11,6 +11,8 @@ declare module "axios" {
     skipAuthRedirect?: boolean;
     /** Set once a request has been retried after a silent refresh, so it is never retried twice. */
     _retried?: boolean;
+    /** Preserve the API envelope when a caller needs top-level metadata such as a created resourceId. */
+    preserveEnvelope?: boolean;
   }
 }
 
@@ -43,7 +45,8 @@ export function createApiClient(): AxiosInstance {
 
   // Success envelope -> hand callers just `data` (the object, or `{ result: [...] }` for lists).
   client.interceptors.response.use((res) => {
-    if (isEnvelope(res.data)) res.data = res.data.data;
+    if (isEnvelope(res.data) && !res.config.preserveEnvelope)
+      res.data = res.data.data;
     return res;
   });
   return client;

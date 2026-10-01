@@ -3,7 +3,12 @@ import type { SseEvent, SseEventName } from "@/types";
 import { env } from "@/configs/env";
 import { ApiError, normalizeError } from "@/lib/api/errors";
 import { refreshSession } from "@/lib/api/refresh";
-import { endSession, getAccessToken, hasStoredSession } from "@/lib/api/session";
+import { isRealApiPath } from "@/lib/api/real-routes";
+import {
+  endSession,
+  getAccessToken,
+  hasStoredSession,
+} from "@/lib/api/session";
 
 export interface StreamChatArgs {
   conversationId: string;
@@ -42,13 +47,14 @@ export function parseSseFrame(frame: string): SseEvent | null {
 
 // fetch + ReadableStream because the endpoint is a POST (EventSource can't do that).
 export async function streamChat(args: StreamChatArgs): Promise<void> {
-  if (env.NEXT_PUBLIC_USE_MOCKS) {
+  const path = `/conversations/${args.conversationId}/messages`;
+  if (env.NEXT_PUBLIC_USE_MOCKS && !isRealApiPath("POST", path)) {
     const { mockChatStream } = await import("@/lib/mock/chat-stream");
     return mockChatStream(args);
   }
 
-  const { conversationId, content, signal, onEvent } = args;
-  const url = `${env.NEXT_PUBLIC_API_URL}/conversations/${conversationId}/messages`;
+  const { content, signal, onEvent } = args;
+  const url = `${env.NEXT_PUBLIC_API_URL}${path}`;
   const request = () =>
     fetch(url, {
       method: "POST",
@@ -56,13 +62,16 @@ export async function streamChat(args: StreamChatArgs): Promise<void> {
       headers: {
         "Content-Type": "application/json",
         Accept: "text/event-stream",
-        ...(getAccessToken() ? { Authorization: `Bearer ${getAccessToken()}` } : {}),
+        ...(getAccessToken()
+          ? { Authorization: `Bearer ${getAccessToken()}` }
+          : {}),
       },
       body: JSON.stringify({ content }),
       signal,
     });
 
-  if (!getAccessToken() && hasStoredSession()) await refreshSession().catch(() => undefined);
+  if (!getAccessToken() && hasStoredSession())
+    await refreshSession().catch(() => undefined);
   let res = await request();
   if (res.status === 401) {
     // Expired mid-flight: renew once and repeat the request; if that fails the session is over.
@@ -75,8 +84,15 @@ export async function streamChat(args: StreamChatArgs): Promise<void> {
   if (res.status === 401) endSession();
   if (!res.ok || !res.body) {
     // Failure envelope: { code, error, message, ... }
-    const body = (await res.json().catch(() => null)) as { code?: string; message?: string } | null;
-    throw new ApiError(body?.code ?? "InternalError", body?.message ?? "Couldn't send your message.", res.status);
+    const body = (await res.json().catch(() => null)) as {
+      code?: string;
+      message?: string;
+    } | null;
+    throw new ApiError(
+      body?.code ?? "InternalError",
+      body?.message ?? "Couldn't send your message.",
+      res.status,
+    );
   }
 
   const reader = res.body.getReader();

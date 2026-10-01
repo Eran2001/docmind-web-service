@@ -9,8 +9,8 @@ page, and the passage.
 This repository is the **web app** (Next.js). It is one of three services; see [The three services](#the-three-services).
 
 > **Project status:** work in progress, built phase by phase as an AI full-stack training project.
-> All screens are built. Sign-in, sessions and account settings use the real API; the rest of the app still runs on an
-> in-browser mock until the backend catches up. See [Status](#status) for the honest list.
+> All screens are built. Sign-in, documents, chat and feedback use the real API; usage and eval screens still use the
+> in-browser mock. See [Status](#status) for the current integration state.
 
 ---
 
@@ -21,7 +21,7 @@ Most company knowledge sits in documents nobody has time to read: HR handbooks, 
 - **Keyword search** misses answers that use different words ("parental leave" vs "time off for new parents").
 - **A general chatbot** doesn't know your documents, and when it doesn't know, it can invent a confident answer.
 
-DocMind fixes both: it searches *your* documents by meaning and by keyword, hands the best passages to an AI model, and tells the model to
+DocMind fixes both: it searches _your_ documents by meaning and by keyword, hands the best passages to an AI model, and tells the model to
 answer from those passages only and to cite them. If the answer isn't in the documents, it says so.
 
 ## How the AI helps you
@@ -78,43 +78,45 @@ Why hybrid search: meaning-based search finds "time off for new parents", keywor
                                     └──────────┘ └───────┘
 ```
 
-| Service | Folder | Job |
-|---|---|---|
-| **Web** | `docmind-web-service` (this one) | The UI: sign-in, collections, uploads, chat with citations, evals, usage |
-| **API** | `docmind-api-service` | Owns users, data and auth; orchestrates uploads, background jobs and chat; the only service that touches the database |
-| **AI** | `docmind-ai-service` | Everything AI: parsing, chunking, embeddings, LLM calls, judging. Stateless and internal; the browser never talks to it |
+| Service | Folder                           | Job                                                                                                                     |
+| ------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Web** | `docmind-web-service` (this one) | The UI: sign-in, collections, uploads, chat with citations, evals, usage                                                |
+| **API** | `docmind-api-service`            | Owns users, data and auth; orchestrates uploads, background jobs and chat; the only service that touches the database   |
+| **AI**  | `docmind-ai-service`             | Everything AI: parsing, chunking, embeddings, LLM calls, judging. Stateless and internal; the browser never talks to it |
 
 The browser only talks to the API. Keeping the AI work in its own service means the model code can change without touching the
 web or the data layer.
 
 ## Screens
 
-| Route | What it is |
-|---|---|
-| `/` | Landing page with a live-looking demo of a cited answer |
-| `/login`, `/register` | Sign in / create an account |
-| `/collections` | Your collections (folders of documents), with search and a ⋯ menu to delete |
-| `/collections/:id` | Documents in a collection: drag-and-drop upload, add a URL, processing status |
-| `/collections/:id/chat` | Chat: conversation list, streaming answers, citation panel |
-| `/evals`, `/evals/:id` | Test sets, run history, per-question results with the judge's reasoning |
-| `/usage`, `/admin/usage` | Tokens and cost over time; global stats and top users for admins |
-| `/settings` | Profile and password |
+| Route                    | What it is                                                                    |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| `/`                      | Landing page with a live-looking demo of a cited answer                       |
+| `/login`, `/register`    | Sign in / create an account                                                   |
+| `/collections`           | Your collections (folders of documents), with search and a ⋯ menu to delete   |
+| `/collections/:id`       | Documents in a collection: drag-and-drop upload, add a URL, processing status |
+| `/collections/:id/chat`  | Chat: conversation list, streaming answers, citation panel                    |
+| `/evals`, `/evals/:id`   | Test sets, run history, per-question results with the judge's reasoning       |
+| `/usage`, `/admin/usage` | Tokens and cost over time; global stats and top users for admins              |
+| `/settings`              | Profile and password                                                          |
 
 Works from phone to desktop, in light and dark mode.
 
 ## Status
 
-| Area | State |
-|---|---|
-| All screens and interactions | Built (see above) |
-| Register, login, sign out, silent session refresh | **Real**: talks to the API, accounts stored in Postgres, argon2id-hashed passwords |
-| Settings: edit profile, change password, delete account | **Real** |
-| Collections: create, list, search, delete | **Real** (search is done by the API: `GET /collections?search=`) |
-| Documents: upload (drag and drop), add URL, list, delete, reprocess | **Real** (files are saved by the API and queued) |
-| Ingestion (status moving from Queued to Ready) | Needs the worker and the AI service; documents stay **Queued** for now |
-| Chat, citations, streaming | Mock stream in the UI; real one needs API + AI service |
-| Feedback, usage, evals | Mock; API next |
-| Tests | Not yet for the web app (the API has its own test suite) |
+| Area                                                                | State                                                                                |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| All screens and interactions                                        | Built (see above)                                                                    |
+| Register, login, sign out, silent session refresh                   | **Real**: talks to the API, accounts stored in Postgres, argon2id-hashed passwords   |
+| Settings: edit profile, change password, delete account             | **Real**                                                                             |
+| Collections: create, list, search, delete                           | **Real** (search is done by the API: `GET /collections?search=`)                     |
+| Documents: upload (drag and drop), add URL, list, delete, reprocess | **Real** (files are saved by the API and queued)                                     |
+| Ingestion (status moving from Queued to Ready)                      | Real worker and AI pipeline; OpenAI embeddings credit is required                    |
+| Chat, citations, streaming                                          | Real API + AI service; requires ready documents and embeddings                       |
+| Feedback                                                            | Real API                                                                             |
+| Evals                                                               | Mock UI; API set/question routes exist, run scoring awaits the Python judge endpoint |
+| Usage dashboards                                                    | Mock; API work remains                                                               |
+| Tests                                                               | Not yet for the web app (the API has its own test suite)                             |
 
 The mock lives in `src/lib/mock` and answers everything except the calls listed in `src/lib/api/real-routes.ts`. As each
 endpoint is built in the API, it gets one line there.
@@ -140,13 +142,14 @@ npm run typecheck && npm run lint && npm run build
 
 Then open the app and register an account. Configuration is in `.env` (see `.env.example`):
 
-| Variable | Meaning |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | Base URL of the API (`http://localhost:4000/api/v1`) |
-| `NEXT_PUBLIC_USE_MOCKS` | `true`: the mock answers everything except the real routes. Set `false` once the API is complete |
-| `NEXT_PUBLIC_QUERY_DEVTOOLS` | `true` shows the TanStack Query devtools button |
+| Variable                     | Meaning                                                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_API_URL`        | Base URL of the API (`http://localhost:4000/api/v1`)                                             |
+| `NEXT_PUBLIC_USE_MOCKS`      | `true`: the mock answers everything except the real routes. Set `false` once the API is complete |
+| `NEXT_PUBLIC_QUERY_DEVTOOLS` | `true` shows the TanStack Query devtools button                                                  |
 
 Notes:
+
 - New accounts have role `user`. To see the Admin pages: `UPDATE users SET role = 'admin' WHERE email = '...'` in the API's database.
 - The landing page's "Try the demo" needs a `demo@docmind.dev` account, which the API's seed script will create later.
 - Mock data is kept in `localStorage`; clear the `docmind.mock.v3` key to reset it.
