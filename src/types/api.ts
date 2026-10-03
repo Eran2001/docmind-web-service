@@ -148,7 +148,7 @@ export interface Paginated<T> {
   nextCursor: string | null;
 }
 
-export type UsageKind = "embed" | "answer" | "rewrite" | "judge";
+export type UsageKind = "embed" | "answer" | "rewrite" | "rerank" | "judge";
 
 export interface UsageTotals {
   costUsd: number;
@@ -199,6 +199,16 @@ export interface EvalSetSummary {
   collectionName: string;
   questionCount: number;
   lastRun: { avgCorrectness: number; finishedAt: string } | null;
+}
+
+/** An answer the user rated, with the question that was asked (GET /collections/:id/feedback). */
+export interface RatedAnswer {
+  resourceId: string;
+  conversationId: string;
+  question: string;
+  answer: string;
+  comment: string | null;
+  createdAt: string;
 }
 
 export interface EvalQuestion {

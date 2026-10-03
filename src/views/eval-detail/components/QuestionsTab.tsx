@@ -5,7 +5,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import type { EvalQuestion } from "@/types";
+import type { EvalQuestion, RatedAnswer } from "@/types";
 
 import { DataGrid, type DataGridColumn } from "@/components/common/DataGrid";
 import { Spinner } from "@/components/common/Spinner";
@@ -22,6 +22,7 @@ import {
 import { getErrorMessage } from "@/lib/api/errors";
 import { useDemo } from "@/queries/auth.queries";
 import { useDocuments } from "@/queries/documents.queries";
+import { useDownRatedAnswers } from "@/queries/feedback.queries";
 import {
   useAddEvalQuestion,
   useDeleteEvalQuestion,
@@ -44,6 +45,9 @@ function AddQuestionForm({
 }) {
   const add = useAddEvalQuestion(setId);
   const documents = useDocuments(collectionId);
+  const rated = useDownRatedAnswers(collectionId);
+  // The answer the question was taken from, shown so the expected answer can be written against it.
+  const [source, setSource] = useState<RatedAnswer | null>(null);
   const form = useForm<CreateEvalQuestionInput>({
     resolver: zodResolver(createEvalQuestionSchema),
     defaultValues: {
@@ -89,6 +93,51 @@ function AddQuestionForm({
       onSubmit={submit}
       className="mt-3 flex animate-dmin flex-col gap-3 rounded-xl border p-4"
     >
+      {rated.data && rated.data.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <Select
+            value={source?.resourceId ?? ""}
+            onValueChange={(id) => {
+              const item = rated.data?.find((r) => r.resourceId === id);
+              if (!item) return;
+              setSource(item);
+              form.setValue("question", item.question, { shouldDirty: true });
+            }}
+          >
+            <SelectTrigger
+              className="w-full"
+              aria-label="Start from an answer you rated down"
+            >
+              <SelectValue
+                placeholder={`Start from an answer you rated down (${rated.data.length})`}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {rated.data.map((r) => (
+                <SelectItem key={r.resourceId} value={r.resourceId}>
+                  <span className="block max-w-[60ch] truncate">
+                    {r.question}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {source && (
+            <div className="rounded-lg bg-secondary px-3.5 py-3 text-[13px] leading-[1.55]">
+              <div className="mb-1 text-xs font-medium text-faint">
+                The answer you rated down
+                {source.comment ? ` · your note: “${source.comment}”` : ""}
+              </div>
+              <p className="m-0 line-clamp-5 wrap-anywhere whitespace-pre-wrap text-fg2">
+                {source.answer}
+              </p>
+              <p className="mt-2 mb-0 text-xs text-muted-foreground">
+                Write the answer it should have given below.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
       <Input
         autoFocus
         placeholder="Question"

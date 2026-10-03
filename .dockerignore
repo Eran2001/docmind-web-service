@@ -1,10 +1,10 @@
 node_modules
 .next
-.env
-.env.local
-.DS_Store
-*.tsbuildinfo
-next-env.d.ts
 .next-e2e
 test-results
 playwright-report
+.env
+.env.*
+!.env.example
+.git
+e2e

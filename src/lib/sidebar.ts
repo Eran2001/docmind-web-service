@@ -4,10 +4,15 @@ const KEY = "docmind.sidebar";
 
 export const SIDEBAR_INIT_SCRIPT = `try{if(localStorage.getItem("${KEY}")==="collapsed")document.documentElement.dataset.sidebar="collapsed"}catch(e){}`;
 
-export function setSidebarCollapsed(collapsed: boolean) {
+/**
+ * `remember: false` collapses or expands for this visit only (the saved choice is untouched), so a screen can make room for
+ * itself, like the chat does, without overriding what the user picked.
+ */
+export function setSidebarCollapsed(collapsed: boolean, remember = true) {
   document.documentElement.dataset.sidebar = collapsed
     ? "collapsed"
     : "expanded";
+  if (!remember) return;
   try {
     localStorage.setItem(KEY, collapsed ? "collapsed" : "expanded");
   } catch {

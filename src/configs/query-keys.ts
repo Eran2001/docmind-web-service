@@ -15,6 +15,10 @@ export const queryKeys = {
     chunk: (documentId: string, chunkId: string) =>
       ["documents", "chunk", documentId, chunkId] as const,
   },
+  feedback: {
+    rated: (collectionId: string, rating: -1 | 1) =>
+      ["feedback", "rated", collectionId, rating] as const,
+  },
   conversations: {
     all: ["conversations"] as const,
     list: (collectionId: string) =>

@@ -54,6 +54,10 @@ export function ChatView({ collectionId, conversationId }: Props) {
   const collection = useCollection(collectionId);
   const documents = useDocuments(collectionId);
   const conversations = useConversations(collectionId);
+  const conversationItems = useMemo(
+    () => conversations.data?.pages.flatMap((page) => page.items),
+    [conversations.data],
+  );
   const conversation = useConversation(conversationId);
   const send = useSendMessage(collectionId);
 
@@ -159,8 +163,11 @@ export function ChatView({ collectionId, conversationId }: Props) {
   const list = (onNavigate?: () => void, onClose?: () => void) => (
     <ConversationList
       collectionId={collectionId}
-      conversations={conversations.data}
+      conversations={conversationItems}
       loading={conversations.isPending}
+      hasMore={conversations.hasNextPage}
+      loadingMore={conversations.isFetchingNextPage}
+      onLoadMore={() => void conversations.fetchNextPage()}
       activeId={conversationId}
       onNavigate={onNavigate}
       onClose={onClose}

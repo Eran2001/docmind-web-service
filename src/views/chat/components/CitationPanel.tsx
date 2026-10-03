@@ -67,7 +67,7 @@ export function CitationPanel({
           </p>
         </div>
       ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto p-5">
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto p-5">
           <div className="flex items-start gap-3">
             <div className="grid size-8 flex-none place-items-center rounded-lg bg-secondary text-fg2">
               <DocIcon type={type} className="size-4" />
@@ -85,7 +85,8 @@ export function CitationPanel({
             </div>
           </div>
 
-          <div className="mt-4 rounded-xl bg-secondary px-4.5 py-4 text-sm leading-[1.7] text-muted-foreground">
+          {/* wrap-anywhere: web pages and markdown contain very long unbroken strings (URLs, IDs) that would push the panel wider. */}
+          <div className="mt-4 min-w-0 rounded-xl bg-secondary px-4.5 py-4 text-sm leading-[1.7] wrap-anywhere text-muted-foreground">
             {chunk.isPending ? (
               <div className="flex animate-dmpulse flex-col gap-2">
                 <Bone className="h-3 w-full bg-border" />

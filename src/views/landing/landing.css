@@ -1,0 +1,179 @@
+[data-dm-root] {
+  --bg: #fff;
+  --fg: #0a0a0a;
+  --fg-hover: #262626;
+  --on-fg: #fff;
+  --fg2: #404040;
+  --muted: #737373;
+  --faint: #a3a3a3;
+  --border: #e5e5e5;
+  --border2: #d4d4d4;
+  --surface: #f5f5f5;
+  --subtle: #fafafa;
+  --chip: #ececec;
+  --chip-border: #d4d4d4;
+  --hl: #fdf3c4;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -4px rgba(0, 0, 0, 0.12);
+  --ok: #15803d;
+  --ok-bg: #effaf2;
+  --warn: #a16207;
+  --warn-bg: #fdf8e8;
+  --err: #b91c1c;
+  --err-bg: #fdf1f1;
+  --sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI",
+    system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+.dark [data-dm-root] {
+  --bg: #0a0a0a;
+  --fg: #fafafa;
+  --fg-hover: #e5e5e5;
+  --on-fg: #0a0a0a;
+  --fg2: #d4d4d4;
+  --muted: #a3a3a3;
+  --faint: #737373;
+  --border: #262626;
+  --border2: #3a3a3a;
+  --surface: #171717;
+  --subtle: #111111;
+  --chip: #222222;
+  --chip-border: #3a3a3a;
+  --hl: #3b3413;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 40px -6px rgba(0, 0, 0, 0.7);
+  --ok: #5fc987;
+  --ok-bg: #0f2117;
+  --warn: #e0b04a;
+  --warn-bg: #241c0b;
+  --err: #f08080;
+  --err-bg: #2a1111;
+  color-scheme: dark;
+}
+[data-dm-root],
+[data-dm-root] * {
+  box-sizing: border-box;
+}
+[data-dm-root] {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  font-size: 16px;
+  line-height: normal;
+  text-align: left;
+  --pg: 0;
+}
+[data-dm-root] a {
+  color: var(--fg);
+}
+[data-dm-root] a:hover {
+  color: var(--fg2);
+}
+[data-dm-root] :focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+[data-dm-root] mark {
+  color: inherit;
+  background: none;
+}
+@media (max-width: 760px) {
+  [data-dm-root] [data-desk] {
+    display: none !important;
+  }
+}
+@media (min-width: 761px) {
+  [data-dm-root] [data-mob] {
+    display: none !important;
+  }
+}
+@media (max-width: 760px), (prefers-reduced-motion: reduce) {
+  [data-dm-root] [data-scene="pin"] {
+    height: auto !important;
+  }
+  [data-dm-root] [data-pin] {
+    position: relative !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding-top: 88px !important;
+    padding-bottom: 88px !important;
+  }
+  [data-dm-root] [data-window] {
+    height: auto !important;
+  }
+}
+@media (max-width: 760px), (prefers-reduced-motion: reduce) {
+  [data-dm-root] [data-chatmain] {
+    min-height: 440px !important;
+  }
+}
+@media (max-height: 720px) and (min-width: 761px) {
+  [data-dm-root] [data-short-hide] {
+    display: none !important;
+  }
+  [data-dm-root] [data-pin] {
+    padding-top: 72px !important;
+    gap: 12px !important;
+  }
+}
+@media (max-height: 680px) {
+  [data-dm-root] [data-cue] {
+    display: none !important;
+  }
+}
+[data-dm-root] [data-r] {
+  --t: 0;
+}
+[data-dm-root] [data-header] {
+  --hs: 0;
+}
+[data-dm-root] [data-h="1"]:hover {
+  background: var(--fg-hover) !important;
+  color: var(--on-fg) !important;
+}
+[data-dm-root] [data-h="2"]:hover {
+  background: var(--surface) !important;
+  color: var(--fg) !important;
+}
+[data-dm-root] [data-h="3"]:hover {
+  background: var(--fg-hover) !important;
+  color: var(--on-fg) !important;
+}
+[data-dm-root] [data-h="4"]:hover {
+  background: var(--surface) !important;
+  color: var(--fg) !important;
+}
+[data-dm-root] [data-h="5"]:hover {
+  color: var(--fg) !important;
+  background: var(--surface) !important;
+}
+[data-dm-root] [data-h="6"]:hover {
+  color: var(--fg) !important;
+  background: var(--surface) !important;
+}
+[data-dm-root] [data-h="7"]:hover {
+  background: var(--fg-hover) !important;
+  color: var(--on-fg) !important;
+}
+[data-dm-root] [data-h="8"]:hover {
+  background: var(--surface) !important;
+}
+[data-dm-root] [data-h="9"]:hover {
+  color: var(--fg) !important;
+}
+[data-dm-root] [data-h="10"]:hover {
+  color: var(--fg) !important;
+}
+[data-dm-root] [data-h="11"]:hover {
+  color: var(--fg) !important;
+}
+[data-dm-root] [data-h="12"]:hover {
+  color: var(--fg) !important;
+}
+[data-dm-root] [data-h="13"]:hover {
+  color: var(--fg) !important;
+}

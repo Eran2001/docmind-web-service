@@ -70,7 +70,7 @@ export function ProfileForm({ user }: { user: User }) {
         <FieldError message={errors.email?.message} />
         {!errors.email && email !== user.email && (
           <span className="pl-3.5 text-xs text-muted-foreground">
-            We&apos;ll send a confirmation link to the new address.
+            You&apos;ll sign in with the new address from now on.
           </span>
         )}
       </label>

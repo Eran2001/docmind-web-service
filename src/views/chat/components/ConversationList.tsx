@@ -5,6 +5,7 @@ import { SquarePen, X } from "lucide-react";
 import type { Conversation } from "@/types";
 
 import { Bone } from "@/components/common/Skeletons";
+import { Spinner } from "@/components/common/Spinner";
 import { routes } from "@/configs/routes";
 import { cn } from "@/lib/utils";
 import {
@@ -19,6 +20,10 @@ interface Props {
   collectionId: string;
   conversations: Conversation[] | undefined;
   loading: boolean;
+  /** More conversations exist on the server than the ones loaded. */
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onLoadMore?: () => void;
   activeId?: string;
   onNavigate?: () => void;
   onClose?: () => void;
@@ -28,6 +33,9 @@ export function ConversationList({
   collectionId,
   conversations,
   loading,
+  hasMore,
+  loadingMore,
+  onLoadMore,
   activeId,
   onNavigate,
   onClose,
@@ -108,6 +116,17 @@ export function ConversationList({
             </div>
           </div>
         ))}
+        {hasMore && (
+          <button
+            type="button"
+            onClick={onLoadMore}
+            disabled={loadingMore}
+            className="mx-2.5 mt-3 flex h-8 items-center justify-center gap-1.5 self-stretch rounded-lg border text-[13px] text-fg2 hover:bg-secondary disabled:opacity-60"
+          >
+            {loadingMore && <Spinner className="size-3.5" />}
+            Load more
+          </button>
+        )}
       </div>
     </div>
   );

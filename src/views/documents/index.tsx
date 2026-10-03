@@ -17,6 +17,7 @@ import {
 } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/configs/routes";
+import { setSidebarCollapsed } from "@/lib/sidebar";
 import { getErrorMessage } from "@/lib/api/errors";
 import { useCollection } from "@/queries/collections.queries";
 import {
@@ -93,7 +94,12 @@ export function DocumentsView({ collectionId }: { collectionId: string }) {
         ]}
         actions={
           <Button asChild className={HEADER_BUTTON}>
-            <Link href={routes.chat(collectionId)} aria-label="Open chat">
+            <Link
+              href={routes.chat(collectionId)}
+              aria-label="Open chat"
+              // The chat wants the width: fold the docked sidebar to its icon rail (for this visit only).
+              onClick={() => setSidebarCollapsed(true, false)}
+            >
               <MessageSquare />
               <HeaderButtonLabel>Open chat</HeaderButtonLabel>
             </Link>

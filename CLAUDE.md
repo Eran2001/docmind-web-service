@@ -61,10 +61,11 @@ sonner (toasts) · next-themes · react-markdown · recharts · npm
 - No "Continue with SSO" / "Forgot password?" (out of scope).
 - "Admin usage" (global stats + top 10 users), admin-only. No team/org wording.
 - Eval detail shows the judge model from run data, never hardcoded.
-- Landing "Try the demo" logs in `demo@docmind.dev` (spec Section 10).
+- Landing (`views/landing`) is the Claude Design export "DocMind Landing", converted to React: one component per scene in `sections/`, the design's CSS in `landing.css` (scoped under `[data-dm-root]`, themed by the app's `.dark` class), and the scroll engine in `useLandingScroll.ts` (elements carry `data-r="start end"`, scenes `data-scene`; the engine writes `--t` on them). Edit the TSX directly; the original export is not needed at runtime. "Try the demo" calls `POST /auth/demo` (a private sandbox, see the API README).
 
 ## Commands
 `npm run dev` (http://localhost:3000) · `npm run typecheck && npm run lint && npm run build`
+Tests: `npm test` (Vitest + Testing Library, files next to the code as `*.test.ts(x)`) and `npm run e2e` (Playwright: starts a fake AI service, the API, the worker and the web app on ports 3100/4100/8100 with the `docmind_e2e` database and Redis db 1, so it needs Postgres and Redis running, no keys, and does not disturb `npm run dev`).
 There is no mock: run the API (and its worker and the AI service) next to the web app. `./dev.sh` in the repo root starts everything.
 
 ## Deploy note

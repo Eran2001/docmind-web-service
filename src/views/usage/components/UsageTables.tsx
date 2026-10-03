@@ -21,9 +21,16 @@ const KIND_META: Record<
   answer: { name: "Answer", desc: "Generating responses", opacity: 1 },
   embed: { name: "Embed", desc: "Indexing chunks & queries", opacity: 0.55 },
   judge: { name: "Judge", desc: "Eval grading", opacity: 0.32 },
+  rerank: { name: "Rerank", desc: "Ordering search results", opacity: 0.24 },
   rewrite: { name: "Rewrite", desc: "Query rewriting", opacity: 0.16 },
 };
-const KIND_ORDER: UsageKind[] = ["answer", "embed", "judge", "rewrite"];
+const KIND_ORDER: UsageKind[] = [
+  "answer",
+  "embed",
+  "judge",
+  "rerank",
+  "rewrite",
+];
 
 function KindCell({ kind }: { kind: UsageKind }) {
   const meta = KIND_META[kind];

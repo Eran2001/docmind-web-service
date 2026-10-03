@@ -11,13 +11,29 @@ import type {
 
 import { privateApi } from "@/lib/api/private.api";
 
+export const CONVERSATIONS_PAGE_SIZE = 30;
+
+export interface ConversationPage {
+  items: Conversation[];
+  nextCursor: string | null;
+}
+
 export const chatService = {
-  async listConversations(collectionId: string): Promise<Conversation[]> {
-    const { data } = await privateApi.get<{ result: ConversationResource[] }>(
-      `/collections/${collectionId}/conversations`,
-      { params: { limit: 100 } },
-    );
-    return data.result.map(toConversation);
+  /** One page of conversations, newest activity first. `nextCursor` is null on the last page. */
+  async listConversations(
+    collectionId: string,
+    cursor?: string,
+  ): Promise<ConversationPage> {
+    const { data } = await privateApi.get<{
+      result: ConversationResource[];
+      nextCursor: string | null;
+    }>(`/collections/${collectionId}/conversations`, {
+      params: { limit: CONVERSATIONS_PAGE_SIZE, cursor },
+    });
+    return {
+      items: data.result.map(toConversation),
+      nextCursor: data.nextCursor,
+    };
   },
   async createConversation(collectionId: string): Promise<Conversation> {
     const { data } = await privateApi.post<ApiEnvelope<{ result: true }>>(

@@ -122,7 +122,7 @@ export function MarkdownContent({
   return (
     <div
       className={cn(
-        "text-[15px] leading-[1.7]",
+        "min-w-0 text-[15px] leading-[1.7] wrap-anywhere",
         streaming && (source ? "dm-stream" : "dm-stream-empty"),
       )}
     >

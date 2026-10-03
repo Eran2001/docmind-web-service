@@ -1,30 +1,36 @@
 import { useCallback } from "react";
 import {
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
+  type InfiniteData,
   type QueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import type { FeedbackInput } from "@/schemas";
-import type { Conversation, ConversationDetail, Message, User } from "@/types";
+import type { ConversationDetail, Message, User } from "@/types";
 
 import { routes } from "@/configs/routes";
 import { queryKeys } from "@/configs/query-keys";
 import { getErrorMessage } from "@/lib/api/errors";
 import { streamChat } from "@/lib/sse";
-import { chatService } from "@/services/chat.service";
+import { chatService, type ConversationPage } from "@/services/chat.service";
 import { useChatStore } from "@/stores/chat.store";
 import { useDemoStore } from "@/stores/demo.store";
 
 const DEMO_QUESTIONS_USED_MESSAGE =
   "You've used your demo questions. Create a free account to keep chatting.";
 
+/** The collection's conversations, one page at a time ("Load more" asks for the next page). */
 export function useConversations(collectionId: string) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: queryKeys.conversations.list(collectionId),
-    queryFn: () => chatService.listConversations(collectionId),
+    queryFn: ({ pageParam }) =>
+      chatService.listConversations(collectionId, pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
 }
 
@@ -133,9 +139,20 @@ export function useSendMessage(collectionId: string) {
         if (!convId) {
           const conv = await chatService.createConversation(collectionId);
           convId = conv.id;
-          qc.setQueryData<Conversation[]>(
+          // The new chat goes to the top of the first page.
+          qc.setQueryData<InfiniteData<ConversationPage, string | undefined>>(
             queryKeys.conversations.list(collectionId),
-            (old) => [conv, ...(old ?? [])],
+            (old) =>
+              old
+                ? {
+                    ...old,
+                    pages: old.pages.map((page, index) =>
+                      index === 0
+                        ? { ...page, items: [conv, ...page.items] }
+                        : page,
+                    ),
+                  }
+                : old,
           );
           qc.setQueryData<ConversationDetail>(
             queryKeys.conversations.detail(conv.id),
